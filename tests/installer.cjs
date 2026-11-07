@@ -83,5 +83,3 @@ async function launch(version){
   if(uninstalled && data && dataNames.includes(path.basename(path.resolve(data))) && path.dirname(path.resolve(data)).toLowerCase()===path.resolve(process.env.APPDATA).toLowerCase())await fs.rm(data,{recursive:true,force:true});
  }
 })().catch(error=>{console.error(error);process.exitCode=1;});
-
-

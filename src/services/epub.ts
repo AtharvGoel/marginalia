@@ -89,4 +89,3 @@ export class EpubSession {
     this.book?.destroy();
   }
 }
-

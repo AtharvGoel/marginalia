@@ -11,5 +11,3 @@ export interface DesktopAPI {
 }
 declare global { interface Window { reader: DesktopAPI } }
 export const desktop = window.reader;
-
-

@@ -9,4 +9,3 @@ module.exports = {
  extraMetadata:{name:'epub-reader-validation',version},
  nsis:{...production.nsis,uninstallDisplayName:'EPUB Reader Validation',shortcutName:'EPUB Reader Validation',createDesktopShortcut:false},
 };
-

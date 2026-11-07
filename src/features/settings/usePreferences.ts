@@ -24,4 +24,3 @@ export function usePreferences(report: ReportError) {
   };
   return { preferences, setPreferences, ready };
 }
-

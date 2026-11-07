@@ -5,4 +5,3 @@ export type Preferences = { theme: Theme; fontSize: number };
 export type Match = { cfi: string; excerpt: string };
 export type ReportError = (error: unknown) => void;
 export type SaveBook = (id: string, values: Partial<Entry>) => Promise<void>;
-

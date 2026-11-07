@@ -11,4 +11,3 @@ async function fixture() {
  return zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
 }
 module.exports = { fixture };
-

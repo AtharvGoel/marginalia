@@ -55,4 +55,3 @@ function bookPath(root, id) {
   return path.join(root, 'books', `${id}.epub`);
 }
 module.exports = { MAX_SIZE, validId, validateEpub, atomicJson, bookPath };
-

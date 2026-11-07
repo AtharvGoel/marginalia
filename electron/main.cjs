@@ -63,5 +63,3 @@ else {
     Promise.resolve(library?.close()).catch(error => console.error('Could not close library:',error)).finally(() => {exiting=true;app.quit();});
   });
 }
-
-

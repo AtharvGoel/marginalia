@@ -75,4 +75,3 @@ test('future database versions are rejected without downgrading them', () => tem
  const check=new DatabaseSync(path.join(root,'library.sqlite'));
  assert.equal(check.prepare('PRAGMA user_version').get().user_version,99);check.close();
 }));
-

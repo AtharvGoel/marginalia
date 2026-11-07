@@ -103,6 +103,3 @@ const { fixture } = require('./fixture.cjs');
   console.log('PASS: legacy migration and backups, settings persistence, resizing, images, internal footnotes, damaged import recovery, managed removal;  import, render, chapter navigation, dark theme, bookmarks, restart persistence, duplicate import, disabled book scripts.');
  } finally { if(app) await app.close(); await fs.rm(temporary, { recursive:true, force:true }); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
-
-
-

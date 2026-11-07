@@ -9,4 +9,3 @@ contextBridge.exposeInMainWorld('reader', {
   migratePreferences: value => ipcRenderer.invoke('preferences:migrate',value),
   setPreferences: value => ipcRenderer.invoke('preferences:set',value),
 });
-

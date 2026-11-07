@@ -50,4 +50,3 @@ test('rejects traversal paths and oversize expanded archives', async () => {
  try { await assert.rejects(validateEpub(Buffer.from('fake')),/too large/); }
  finally {JSZip.loadAsync=original;}
 });
-

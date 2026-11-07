@@ -53,4 +53,3 @@ The standard NSIS uninstaller appears in Windows Installed apps and the installa
 Use a feature branch for each milestone, push logical stages, and merge after tests. Windows checks cover logic, migration, production build, desktop behavior, and dependency audit. Packaging can be triggered manually or by a version tag. Installer verification uses a distinct validation identity to avoid replacing the owner's installed app.
 
 The broader compatibility corpus, assistive-technology review, naming, personal bookshelf, watched folders, signing, and Store work remain in the roadmap.
-

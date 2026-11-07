@@ -15,4 +15,3 @@ The reading features remain the same. No shelf redesign or folder monitoring is 
 ## 0.1.0
 
 Initial offline Windows reader with library import, chapter navigation, saved positions, themes, text-size controls, bookmarks, and search.
-

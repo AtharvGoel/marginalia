@@ -70,4 +70,3 @@ export function useReader(entry: Entry | null, save: SaveBook, exit: () => void,
   return { host, busy, chapters, chapter, current, searchText, setSearchText, matches, searching, search, navigate, next, previous };
 }
 export type ReaderControls = ReturnType<typeof useReader>;
-

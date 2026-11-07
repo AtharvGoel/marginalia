@@ -30,4 +30,3 @@ test('managed copies survive removal of the original; deletion preserves the ori
   await assert.rejects(service.read(book.id),/missing/);
  } finally { if(service) await service.close(); await fs.rm(root,{recursive:true,force:true}); }
 });
-

@@ -142,4 +142,3 @@ class LibraryDatabase {
   close() { this.db.exec('PRAGMA wal_checkpoint(TRUNCATE)'); this.db.close(); }
 }
 module.exports = { openLibrary, SCHEMA_VERSION };
-

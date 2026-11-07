@@ -77,4 +77,3 @@ Windows GitHub Actions run on pushes and pull requests. A separate packaging wor
 See [architecture](docs/ARCHITECTURE.md) for implementation details.
 
 Source remains private-use / all rights reserved pending the owner's license decision. A free Store price does not require public source code.
-

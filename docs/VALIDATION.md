@@ -46,4 +46,3 @@ Hosted Windows checks passed for the refactoring, SQLite, and expanded-regressio
 These checks use generated EPUBs rather than a large publisher corpus. They do not establish compatibility with every EPUB, fixed-layout content, DRM, assistive technology, or every Windows configuration. Visual acceptance of a personalized bookshelf is future work.
 
 Signing, a custom icon, Store submission, independent security review, and screen-reader review remain future work. See [ROADMAP.md](../ROADMAP.md).
-
