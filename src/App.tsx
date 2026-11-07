@@ -10,8 +10,9 @@ export function App() {
   const [error, setError] = useState('');
   const report = useCallback((error: unknown) => setError(error instanceof Error ? error.message : String(error)), []);
   const library = useLibrary(report);
-  const { preferences, setPreferences } = usePreferences();
+  const { preferences, setPreferences, ready } = usePreferences(report);
   const reader = useReader(library.active, library.save, () => library.setActive(null), report, preferences);
+  if (!ready) return <main><p role="status">Loading your reading preferences…</p>{error && <p role="alert">{error}</p>}</main>;
   return <div className={'app ' + preferences.theme}>
     <Sidebar active={library.active} count={library.books.length} reader={reader} save={library.save} exit={() => library.setActive(null)}/>
     <main>
@@ -22,4 +23,6 @@ export function App() {
     </main>
   </div>;
 }
+
+
 
