@@ -122,6 +122,12 @@ class LibraryDatabase {
       return this.get(id);
     });
   }
+  updateMetadata(id, value) {
+    const book=this.get(id);
+    const title=value.title || book.title, author=value.author || book.author;
+    if(title!==book.title || author!==book.author) this.db.prepare('UPDATE books SET title=?,author=? WHERE id=?').run(title,author,id);
+    return this.get(id);
+  }
   remove(id) { this.get(id); this.db.prepare('DELETE FROM books WHERE id=?').run(id); }
   getPreferences() {
     const row = this.db.prepare('SELECT theme, font_size AS fontSize FROM preferences WHERE id=1').get();

@@ -25,5 +25,10 @@ export function useLibrary(report: ReportError) {
     try { setBooks(await desktop.remove(entry.id)); }
     catch (error) { report(error); }
   };
-  return { books, active, setActive, busy, save, importBooks, remove };
+  const inspected=useCallback((entry: Entry)=>{
+    const merge=(book: Entry)=>book.id===entry.id ? {...book,title:entry.title,author:entry.author} : book;
+    setBooks(books=>books.map(merge));
+    setActive(book=>book ? merge(book) : book);
+  },[]);
+  return { inspected, books, active, setActive, busy, save, importBooks, remove };
 }

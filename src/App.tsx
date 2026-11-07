@@ -19,7 +19,7 @@ export function App() {
       {error && <div role="alert" className="error">{error}<button onClick={() => setError('')} aria-label="Dismiss error">×</button></div>}
       {library.active
         ? <ReaderPane entry={library.active} reader={reader} preferences={preferences} setPreferences={setPreferences} save={library.save}/>
-        : <Library books={library.books} busy={library.busy} open={entry => { setError(''); library.setActive(entry); }} importBooks={library.importBooks} remove={library.remove}/>}
+        : <Library inspected={library.inspected} books={library.books} busy={library.busy} open={entry => { setError(''); library.setActive(entry); }} importBooks={library.importBooks} remove={library.remove}/>}
     </main>
   </div>;
 }

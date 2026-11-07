@@ -44,6 +44,7 @@ async function validateEpub(bytes) {
     catch { throw new Error('Invalid EPUB chapter path.'); }
     if (chapter.startsWith('../') || !zip.file(chapter)) throw new Error('An EPUB chapter is missing: ' + chapter);
   }
+  return {zip,opf,packagePath};
 }
 async function atomicJson(filename, value) {
   const temp = `${filename}.${crypto.randomUUID()}.tmp`;

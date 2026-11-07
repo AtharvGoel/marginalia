@@ -22,7 +22,7 @@ const { fixture } = require('./fixture.cjs');
   let page = await launch();
   await app.evaluate(({ dialog }, file) => { dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [file] }); }, sample);
   await page.getByRole('button', {name:'Add books'}).click();
-  await page.getByRole('button', {name:'Read sample', exact:true}).click();
+  await page.getByRole('button', {name:'Read A Quiet Beginning', exact:true}).click();
   await expect(page.locator('.loading')).toHaveCount(0, {timeout:30000});
   await expect(page.frameLocator('iframe').getByRole('heading', {name:'The beginning', exact:true})).toBeVisible();
   await expect(page.locator('.error')).toHaveCount(0);

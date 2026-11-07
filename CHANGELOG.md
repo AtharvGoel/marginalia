@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.1 — 8 November 2026
+
+- Display embedded cover artwork on the bookshelf, preserving a readable title below each cover.
+- Read titles and authors at import instead of waiting for the book to be opened.
+- Refresh existing bookshelf metadata without changing reading positions, bookmarks, or recent-reading order.
+- Display comma-separated surname-first authors in given-name-first order.
+- Cache local thumbnails and retain text covers for missing, corrupt, or unsupported artwork.
+- Record the cramped Chapters panel for a later layout fix.
+
 ## 0.2.0 — 8 November 2026
 
 - Separate UI features, desktop access, and EPUB rendering behind modules.

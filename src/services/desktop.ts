@@ -5,6 +5,7 @@ export interface DesktopAPI {
   setPreferences(value: Preferences): Promise<Preferences>;
   list(): Promise<Entry[]>;
   importBooks(): Promise<Entry[]>;
+  inspectBook(id: string): Promise<{entry: Entry; cover: string | null}>;
   read(id: string): Promise<Uint8Array>;
   update(id: string, value: Partial<Entry>): Promise<Entry>;
   remove(id: string): Promise<Entry[]>;

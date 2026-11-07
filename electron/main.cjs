@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, nativeImage } = require('electron');
 const path = require('node:path');
 const { openLibraryService } = require('./library-service.cjs');
 let win, library, exiting = false;
@@ -21,12 +21,20 @@ else {
   app.on('second-instance', () => { if(win) { if(win.isMinimized()) win.restore(); win.focus(); } });
   app.whenReady().then(async () => {
     const root = isTest || app.getPath('userData');
-    library = await openLibraryService(root);
+    library = await openLibraryService(root,{thumbnail:bytes=>{
+      const image=nativeImage.createFromBuffer(bytes);
+      if(image.isEmpty())return null;
+      const {width,height}=image.getSize();
+      if(width>12000 || height>12000)return null;
+      const scale=Math.min(256/width,384/height,1);
+      return image.resize({width:Math.max(1,Math.round(width*scale)),height:Math.max(1,Math.round(height*scale)),quality:'good'}).toDataURL();
+    }});
     handle('library:list', () => library.list());
     handle('book:import', async () => {
       const result = await dialog.showOpenDialog(win, { filters: [{ name: 'EPUB books', extensions: ['epub'] }], properties: ['openFile','multiSelections'] });
       return result.canceled ? library.list() : library.importFiles(result.filePaths);
     });
+    handle('book:inspect',id=>library.inspectBook(id));
     handle('book:read', id => library.read(id));
     handle('book:update', (id,value) => library.update(id,value));
     handle('book:remove', id => library.remove(id));
@@ -59,7 +67,7 @@ else {
     event.preventDefault();
     // Reject new IPC writes while waiting for existing work to finish.
 
-    for (const channel of ['library:list','book:import','book:read','book:update','book:remove','preferences:get','preferences:migrate','preferences:set']) ipcMain.removeHandler(channel);
+    for (const channel of ['library:list','book:import','book:read','book:update','book:remove','book:inspect','preferences:get','preferences:migrate','preferences:set']) ipcMain.removeHandler(channel);
     Promise.resolve(library?.close()).catch(error => console.error('Could not close library:',error)).finally(() => {exiting=true;app.quit();});
   });
 }

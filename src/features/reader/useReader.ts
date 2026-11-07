@@ -22,7 +22,6 @@ export function useReader(entry: Entry | null, save: SaveBook, exit: () => void,
     setBusy(true); setChapters([]); setChapter(''); setCurrent('');
     setSearchText(''); setMatches([]); setSearching(false);
     const reader = new EpubSession({
-      metadata: value => latest.current.save(entry.id, value),
       chapters: value => { if (mounted) setChapters(value); },
       relocated: (cfi, label) => {
         if (!mounted) return;
