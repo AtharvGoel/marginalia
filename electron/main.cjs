@@ -11,7 +11,7 @@ function trusted(event) {
 }
 function handle(name, fn) { ipcMain.handle(name, (event, ...args) => { trusted(event); return fn(...args); }); }
 app.whenReady().then(async () => {
-  root = app.getPath('userData');
+  root = process.env.NODE_ENV === 'test' && process.env.EPUB_READER_TEST_DATA || app.getPath('userData');
   await fs.mkdir(path.join(root, 'books'), { recursive: true });
   try {
     const stored = JSON.parse(await fs.readFile(path.join(root, 'library.json'), 'utf8'));
@@ -71,3 +71,11 @@ app.whenReady().then(async () => {
   else await win.loadFile(path.join(__dirname, '../dist/index.html'));
 }).catch(error => { dialog.showErrorBox('Could not start EPUB Reader', error.message); app.quit(); });
 app.on('window-all-closed', () => app.quit());
+
+
+let exiting = false;
+app.on('before-quit', event => {
+  if (exiting) return;
+  event.preventDefault();
+  queue.finally(() => { exiting = true; app.quit(); });
+});
