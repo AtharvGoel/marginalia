@@ -9,19 +9,8 @@ const {metadata,localResource}=require('../electron/metadata.cjs');
 const {openLibraryService}=require('../electron/library-service.cjs');
 const {openLibrary}=require('../electron/database.cjs');
 const {fixture}=require('./fixture.cjs');
-async function book(style='epub3',author='Test, Reader') {
- const zip=await JSZip.loadAsync(await fixture());
- let opf=await zip.file('OEBPS/book.opf').async('string');
- opf=opf.replace('Reader Test',author);
- if(style==='epub3')opf=opf.replace('id="image" href="pixel.png"','id="image" properties="cover-image" href="pixel.png"');
- if(style==='epub2')opf=opf.replace('</metadata>','<meta name="cover" content="image"/></metadata>');
- if(style==='wrapper'){
-  opf=opf.replace('</package>','<guide><reference type="cover" href="cover.xhtml"/></guide></package>');
-  zip.file('OEBPS/cover.xhtml','<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Cover</title></head><body><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><image xlink:href="pixel.png"/></svg></body></html>');
- }
- zip.file('OEBPS/book.opf',opf);
- return zip.generateAsync({type:'nodebuffer'});
-}
+const {coverBook:book}=require('./cover-fixture.cjs');
+
 test('reads embedded title and author and supports EPUB 3, EPUB 2 and cover-page artwork',async()=>{
  for(const style of ['epub3','epub2','wrapper']){
   const info=await metadata(await book(style));
@@ -90,4 +79,3 @@ test('imports clean metadata immediately and backfills old entries without chang
   assert.deepEqual(await fs.readdir(path.join(data,'covers')),[]);
  }finally{if(svc)await svc.close();if(db)db.close();await fs.rm(root,{recursive:true,force:true});}
 });
-module.exports={book};

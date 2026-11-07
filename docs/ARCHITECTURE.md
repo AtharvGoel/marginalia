@@ -1,4 +1,4 @@
-# Architecture — 0.2
+# Architecture — 0.2.1
 
 See [the roadmap](../ROADMAP.md) for feature scope and [validation](VALIDATION.md) for evidence and limits.
 
@@ -21,6 +21,7 @@ The rendering adapter exposes application concepts rather than leaking epub.js i
 - `electron/main.cjs`: application lifecycle, single-instance lock, trusted-frame checks, IPC registration, and window/network restrictions.
 - `electron/library-service.cjs`: managed EPUB copies, deduplicated importing, and serialized writes.
 - `electron/database.cjs`: SQLite schema migrations and data access.
+- `electron/metadata.cjs`: embedded title, creator, and cover discovery; local resource resolution.
 - `electron/storage.cjs`: archive/package validation and safe managed paths.
 - `electron/preload.cjs`: a small explicit library and preferences API.
 
@@ -41,6 +42,14 @@ On the first 0.2 launch:
 The original JSON is retained. A failed migration rolls back and is retryable; an existing valid database does not reimport stale legacy JSON. Databases from future schema versions are refused without downgrade.
 
 Legacy appearance settings are read from localStorage, backed up as normalized preference JSON, and imported once. SQLite then becomes authoritative; localStorage is retained for recovery.
+
+## Bookshelf presentation
+
+Imports reuse the validated EPUB archive to read package metadata immediately. Original author strings are stored unchanged; the interface formats explicit surname-first entries for display. Multiple creators are retained separately in a semicolon-delimited string; ordinary names are not reversed.
+
+A book presentation IPC call refreshes old metadata without touching last-opened dates, reading positions, or bookmarks. Artwork is discovered via EPUB 3 cover-image, EPUB 2 cover metadata, or local raster references in XHTML/SVG cover wrappers. No external cover resources are fetched. Unsupported/vector-only or damaged artwork falls back to text.
+
+The main process decodes artwork with Electron nativeImage and creates a bounded thumbnail. The per-book cache in covers/ is disposable. No database schema change is needed. The renderer receives a data URL rather than arbitrary filesystem access. Cache failures do not prevent importing or opening a book.
 
 ## Files and uninstall
 

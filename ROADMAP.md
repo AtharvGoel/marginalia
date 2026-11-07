@@ -55,7 +55,7 @@ Acceptance: dropping a completed EPUB into a linked folder imports it once; rest
 
 ### Reading comfort — Planned
 
-- **User requested:** Give the Chapters panel substantially more usable height. Long book titles and generous header spacing currently squeeze it into a small area. Compact or collapse the title/header, keep navigation accessible, and consider a resizable/collapsible sidebar. Verify with the supplied long-title screenshot and a long table of contents before calling the layout fixed.
+- **User requested:** Give the Chapters panel substantially more usable height. Long book titles and generous header spacing currently squeeze it into a small area (example: "On Looking: Eleven Walks with Expert Eyes" in the supplied screenshot). Compact or collapse the title/header, keep navigation accessible, and consider a resizable/collapsible sidebar. Verify with the supplied long-title screenshot and a long table of contents before calling the layout fixed.
 
 
 - Font-family choices, line spacing, margins, continuous scrolling, and fullscreen reading.

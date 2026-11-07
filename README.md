@@ -1,4 +1,4 @@
-# EPUB Reader — 0.2
+# EPUB Reader — 0.2.1
 
 An offline Windows desktop reader for DRM-free, reflowable EPUB books.
 
@@ -6,7 +6,7 @@ An offline Windows desktop reader for DRM-free, reflowable EPUB books.
 
 ## Install or uninstall
 
-Open `release/EPUB Reader Setup 0.2.0.exe` to install on Windows 11 x64. Packaged apps do not need Node.js installed.
+Open `release/EPUB Reader Setup 0.2.1.exe` to install on Windows 11 x64. Packaged apps do not need Node.js installed.
 
 To uninstall:
 - Open **Windows Settings → Apps → Installed apps → EPUB Reader → Uninstall**, or
@@ -36,9 +36,18 @@ Use `npm run dev` for development. Your existing system Node was left unchanged;
 - Saved reading positions, bookmarks, and full-text search (first 100 results).
 - Offline operation with disabled book scripts and blocked remote requests.
 
-The title and author refresh when a book is first opened. Covers currently use typography rather than embedded artwork. Complex fixed-layout books, DRM-protected EPUBs, PDFs, and audio/video are outside current support.
+New imports use the EPUB's embedded title and author immediately, regardless of the filename. Embedded artwork appears on the bookshelf, with the title kept below it. Surname-first author entries such as "Austen, Jane" display as "Jane Austen"; original metadata is retained. Older entries refresh as their bookshelf cards load. Missing, damaged, unsupported, or vector-only artwork uses the text-cover fallback. Complex fixed-layout books, DRM-protected EPUBs, PDFs, and audio/video are outside current support.
 
-## What's new in 0.2
+## What's new in 0.2.1
+
+- Embedded EPUB cover artwork, including EPUB 3 cover-image, EPUB 2 cover metadata, and cover-page references to raster images.
+- Cached local thumbnails, with graceful fallback and no external artwork downloads.
+- Immediate metadata titles at import and refreshed metadata for existing books.
+- Given-name-first author display and matching author search.
+- Long bookshelf titles wrap beneath covers.
+- The cramped Chapters panel is recorded for a later layout change; it is not changed in this release.
+
+## Foundation in 0.2
 
 - Separate modules for library, reading, navigation, settings, and EPUB integration.
 - SQLite storage for book metadata, positions, bookmarks, and preferences.
@@ -50,6 +59,7 @@ The title and author refresh when a book is first opened. Covers currently use t
 
 Use Electron's per-user application-data directory (normally under `%APPDATA%`) for this app:
 - `books/`: app-managed EPUB copies.
+- `covers/`: disposable cached thumbnails and embedded presentation metadata.
 - `library.sqlite`: SQLite metadata and reading preferences.
 - `backups/`: automatic migration backups.
 - `library.json`: retained 0.1 source, if one existed.

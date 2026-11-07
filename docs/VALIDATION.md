@@ -1,4 +1,24 @@
-# Validation — 0.2.0
+# Validation — 0.2.1
+
+Checked on Windows 11 x64 on 8 November 2026.
+
+- All 19 storage, database, service, author-formatting, and metadata tests passed.
+- Production build and type checks passed.
+- Existing reading/migration regression suite passed against the packaged 0.2.1 executable.
+- Dedicated bookshelf desktop checks passed in development and against the packaged executable:
+  - Embedded cover image decoded and displayed.
+  - Messy filenames did not determine displayed titles when metadata was available.
+  - Surname-first authors displayed and searched in given-name-first order.
+  - Missing and corrupt cover images retained readable text covers.
+  - Cover loading did not mark books as read or change recent-reading order.
+  - Cover and author display persisted across app restart.
+- Metadata tests cover EPUB 3 cover-image, EPUB 2 cover metadata, XHTML/SVG wrappers with embedded raster images, multiple creators, unsafe/external paths, caching, cleanup, and preserving saved reading state during backfill.
+- Bookshelf screenshot was inspected.
+- Windows x64 NSIS installer generated. The NSIS configuration is unchanged from 0.2.0; its installation/upgrade/uninstall checks below were not repeated for this patch.
+- Pure-vector covers and unsupported/undecodable images use a text fallback.
+- The chapter-panel height issue is recorded in the roadmap; this patch does not fix it.
+
+## Previous release: 0.2.0
 
 Checked on Windows 11 x64 on 8 November 2026.
 
