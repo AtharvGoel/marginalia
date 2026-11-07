@@ -9,7 +9,6 @@ export const palettes = {
 };
 const flatten = (items: Chapter[]): Chapter[] => items.flatMap(item => [item, ...flatten(item.subitems || [])]);
 type Callbacks = {
-  metadata(value: Partial<Entry>): Promise<void>;
   chapters(value: Chapter[]): void;
   relocated(cfi: string, chapter: string): void;
   exit(): void;
@@ -28,8 +27,6 @@ export class EpubSession {
     this.book = book;
     await book.ready;
     if (this.disposed) return;
-    const metadata = await book.loaded.metadata;
-    await this.callbacks.metadata({ title: metadata.title || entry.title, author: metadata.creator || entry.author });
     if (this.disposed) return;
     const toc = flatten((await book.loaded.navigation).toc as Chapter[]);
     this.callbacks.chapters(toc);

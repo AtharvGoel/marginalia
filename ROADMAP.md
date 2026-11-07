@@ -30,7 +30,7 @@ Ideas to review:
 - A recognizable bookshelf identity, expressive book arrangements, and a warmer sense of place.
 - Personal backgrounds, textures, shelf materials, decorative details, and accent colors.
 - Collections, favorites, custom ordering, reading piles, and personal shelf names.
-- Real embedded covers with attractive fallbacks for books without artwork.
+- **Done (0.2.1):** Embedded cover artwork with readable titles below it and text fallbacks for missing artwork.
 - Optional compact/list view and reduced visual effects for accessibility and performance.
 
 Before implementation, review visual concepts together to choose what feels personal to the owner. No final style has been selected.
@@ -54,6 +54,9 @@ Design decisions:
 Acceptance: dropping a completed EPUB into a linked folder imports it once; restarting catches offline additions; unlinking stops monitoring and retains existing books.
 
 ### Reading comfort — Planned
+
+- **User requested:** Give the Chapters panel substantially more usable height. Long book titles and generous header spacing currently squeeze it into a small area. Compact or collapse the title/header, keep navigation accessible, and consider a resizable/collapsible sidebar. Verify with the supplied long-title screenshot and a long table of contents before calling the layout fixed.
+
 
 - Font-family choices, line spacing, margins, continuous scrolling, and fullscreen reading.
 - Reading progress and clearer chapter/page indicators.

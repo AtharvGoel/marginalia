@@ -2,3 +2,5 @@
 
 
 .book-search input{width:100%;font-size:11px}.book-search button{margin-top:8px;font-size:11px}.search-result{display:block;text-align:left;border:0;font-size:11px;line-height:1.7;width:100%}.tabs{flex-wrap:wrap}
+
+.book-cover.has-artwork{padding:0;background:#deddd4;overflow:hidden}.book-cover.has-artwork img{display:block;width:100%;height:100%;object-fit:contain}.book-author{line-height:1.5}
