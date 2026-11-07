@@ -11,7 +11,7 @@ const { fixture } = require('./fixture.cjs');
  const env = { ...process.env, NODE_ENV: 'test', EPUB_READER_TEST_DATA: path.join(temporary, 'data') };
  delete env.ELECTRON_RUN_AS_NODE;
  async function launch() {
-  app = await electron.launch({ args: ['.'], env });
+  app = await electron.launch({ args: process.env.EPUB_TEST_EXECUTABLE ? [] : ['.'], executablePath: process.env.EPUB_TEST_EXECUTABLE || undefined, env });
   const page = await app.firstWindow();
   page.on('pageerror', e => console.error('PAGE ERROR:', e.message));
   await page.getByRole('heading', {name:'My library.'}).waitFor();
@@ -57,4 +57,5 @@ const { fixture } = require('./fixture.cjs');
   console.log('PASS: import, render, chapter navigation, dark theme, bookmarks, restart persistence, duplicate import, disabled book scripts.');
  } finally { if(app) await app.close(); await fs.rm(temporary, { recursive:true, force:true }); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
+
 
