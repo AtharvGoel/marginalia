@@ -1,34 +1,56 @@
-# Architecture and release plan
+# Architecture — 0.2
 
-## Decisions
+See [the roadmap](../ROADMAP.md) for feature scope and [validation](VALIDATION.md) for evidence and limits.
 
-Electron provides a consistent Chromium EPUB layout engine and Windows integration. React and TypeScript implement the interface; epub.js handles EPUB package parsing, chapter layout, navigation, CFI locations, and text search. Vite builds local assets. electron-builder generates a Windows x64 NSIS installer.
+## Desktop and interface
 
-The tradeoff is a larger download and memory footprint than a native Windows reader. Windows 11 on Intel is the first target. Store release is a future MSIX packaging milestone, not part of the initial installer.
+Electron remains the desktop shell. React/TypeScript renders local assets built by Vite. The Windows x64 installer uses NSIS. No server or account is needed.
 
-## Boundaries
+- `src/App.tsx`: application composition and error display.
+- `src/features/library/`: library UI, importing, selection, and removal.
+- `src/features/reader/`: reading view and session lifecycle hook.
+- `src/features/settings/`: preference loading/saving and reader toolbar.
+- `src/components/Sidebar.tsx`: chapter, bookmark, and search navigation.
+- `src/services/epub.ts`: replaceable epub.js adapter for opening, navigation, layout, search, and cleanup.
+- `src/services/desktop.ts`: typed desktop bridge.
 
-- Main process: native file picker, size/ZIP checks, managed file copies, library metadata, serialized disk writes.
-- Preload: an explicit list/import/read/update/remove bridge. Main-process handlers reject calls from subframes.
-- App renderer: trusted interface with no Node access.
-- Book iframe: epub.js sandbox, scripting disabled, content hooks strip active elements, event attributes and external links. Network requests are blocked in production.
-- Storage: schema version 1 JSON and SHA-256-named EPUB copies outside the repository. Atomic metadata replacement and queued writes; shutdown waits for queued writes.
+The rendering adapter exposes application concepts rather than leaking epub.js into UI components.
 
-No extracted archive paths are written to disk. Book identifiers are validated before constructing paths. A malformed saved library causes an error and exit rather than silently overwriting existing data.
+## Desktop boundaries
 
-## Stages
+- `electron/main.cjs`: application lifecycle, single-instance lock, trusted-frame checks, IPC registration, and window/network restrictions.
+- `electron/library-service.cjs`: managed EPUB copies, deduplicated importing, and serialized writes.
+- `electron/database.cjs`: SQLite schema migrations and data access.
+- `electron/storage.cjs`: archive/package validation and safe managed paths.
+- `electron/preload.cjs`: a small explicit library and preferences API.
 
-1. Foundation: repository, dependencies, restricted desktop shell.
-2. Personal reader: library, EPUB rendering, chapter navigation, saved CFI, themes, bookmarks and text search.
-3. Validation and distribution: storage tests, desktop integration tests, Windows CI, x64 installer.
-4. Usability polish: real covers, drag/drop, typography/spacing, reading-progress display, broader compatibility and accessibility review.
-5. Public distribution: icon, license choice and notices, MSIX identity, certification, privacy/support pages and release automation.
+Book scripts are disabled. The book iframe is sandboxed; content hooks remove active elements and event attributes. Production remote requests and permission prompts are denied. These controls need ongoing security review as supported EPUB features expand.
 
-## GitHub workflow
+## SQLite and migration
 
-Push a commit at each completed logical stage. Use feature branches and pull requests for future iterations. Do not commit books or personal reading state. Pull requests must pass storage tests, type checking, production build, desktop integration checks, and dependency audit. Tag release candidates only after installer validation.
+SQLite comes from Electron's bundled Node runtime (`node:sqlite`); no separately rebuilt native SQLite dependency is needed. Development and tests require Node 22.12 or newer.
 
-## Verification limits
+Database schema version 1 uses books, bookmarks, preferences, and migration-history tables. Foreign keys cascade bookmarks when a book is removed. Writes use prepared statements, validation, transactions where multiple statements are needed, WAL, and full synchronization. Shutdown drains the write queue and checkpoints the database.
 
-The included synthetic EPUB exercises standard reflowable content, navigation, search, disabled scripts and persistence. It does not establish compatibility with all publisher EPUBs, fixed-layout books, DRM, assistive technology or all Windows configurations. Installer generation alone does not verify installation, upgrades or uninstallation.
+On the first 0.2 launch:
+1. Validate the old version-1 `library.json`.
+2. Copy its exact bytes to a uniquely named file under `backups/`.
+3. Create the schema and import books, positions, dates, and bookmarks in one transaction.
+4. Commit the schema version only after the import succeeds.
+
+The original JSON is retained. A failed migration rolls back and is retryable; an existing valid database does not reimport stale legacy JSON. Databases from future schema versions are refused without downgrade.
+
+Legacy appearance settings are read from localStorage, backed up as normalized preference JSON, and imported once. SQLite then becomes authoritative; localStorage is retained for recovery.
+
+## Files and uninstall
+
+EPUB copies stay in the app-data `books/` directory under their SHA-256 identifiers. Archive contents are never extracted into arbitrary device paths. Import checks include size, expanded size, entry count, unsafe paths, container/package XML, and referenced reading chapters.
+
+The standard NSIS uninstaller appears in Windows Installed apps and the installation folder. Uninstall removes the app and shortcuts while keeping reading data by default. Original source EPUBs are never removed.
+
+## GitHub and release process
+
+Use a feature branch for each milestone, push logical stages, and merge after tests. Windows checks cover logic, migration, production build, desktop behavior, and dependency audit. Packaging can be triggered manually or by a version tag. Installer verification uses a distinct validation identity to avoid replacing the owner's installed app.
+
+The broader compatibility corpus, assistive-technology review, naming, personal bookshelf, watched folders, signing, and Store work remain in the roadmap.
 

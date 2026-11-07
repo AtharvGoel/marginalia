@@ -1,8 +1,20 @@
-# EPUB Reader
+# EPUB Reader — 0.2
 
 An offline Windows desktop reader for DRM-free, reflowable EPUB books.
 
-## Run
+**Review future features and priorities in [ROADMAP.md](ROADMAP.md).** This includes the personal bookshelf redesign, linked folders with automatic importing, and finding a good name for the app.
+
+## Install or uninstall
+
+Open `release/EPUB Reader Setup 0.2.0.exe` to install on Windows 11 x64. Packaged apps do not need Node.js installed.
+
+To uninstall:
+- Open **Windows Settings → Apps → Installed apps → EPUB Reader → Uninstall**, or
+- Run **Uninstall EPUB Reader.exe** in the installation folder.
+
+The uninstaller removes the app and its shortcuts and keeps your imported books, bookmarks, positions, and preferences. Your original EPUB files are untouched. Signing and Microsoft Store submission have not been performed; local builds may show an unknown-publisher warning.
+
+## Run from source
 
 Use Node.js 22.12 or newer and npm.
 
@@ -13,31 +25,42 @@ npm run build
 npm start
 ```
 
-For development, use `npm run dev`. The app does not need Node.js installed once packaged.
+Use `npm run dev` for development. Your existing system Node was left unchanged; development commands can also be run using a temporary Node 22 runtime.
 
-Your existing system Node 20 was left unchanged. If needed, run individual tools temporarily with:
-`npm exec --yes --package=node@22 -- node tests/desktop.cjs`.
+## Reading features
 
-## Included in 0.1.0
+- Multiple-book import with duplicate detection.
+- Library search and recent-reading order.
+- Chapter navigation, previous/next buttons, and arrow keys.
+- Light, sepia, and dark themes; adjustable text size.
+- Saved reading positions, bookmarks, and full-text search (first 100 results).
+- Offline operation with disabled book scripts and blocked remote requests.
 
-- Import multiple books through a native file picker; duplicate files are detected by SHA-256.
-- Library search and sorting by most recent reading.
-- Chapter navigation, previous/next buttons, and left/right arrow keys.
-- Light, sepia, and dark reading themes; adjustable text size.
-- Automatic reading-position restoration and bookmarks.
-- Full-text search within a book (first 100 matches).
-- Original files are preserved; removing a book removes only the app-managed copy.
-- Offline operation, disabled book scripts, blocked remote requests, restricted desktop bridge.
+The title and author refresh when a book is first opened. Covers currently use typography rather than embedded artwork. Complex fixed-layout books, DRM-protected EPUBs, PDFs, and audio/video are outside current support.
 
-Book title and author are refreshed on first opening. Covers currently use generated typography rather than embedded book artwork. Settings persist locally.
+## What's new in 0.2
 
-## Data and privacy
+- Separate modules for library, reading, navigation, settings, and EPUB integration.
+- SQLite storage for book metadata, positions, bookmarks, and preferences.
+- Automatic 0.1 data migration with backups and rollback.
+- Migration and reading checks covering images, footnotes, resizing, persistence, and damaged imports.
+- Explicit uninstaller settings that preserve reading data.
 
-Books and versioned library metadata are in Electron's per-user application-data folder (normally `%APPDATA%\epub-reader`). Books are copied there during import. No accounts, analytics, cloud services, or network-loaded fonts are used. Back up that complete folder while the app is closed to preserve books, positions, and bookmarks.
+## Data and backups
 
-Imports are limited to 100 MB compressed / 300 MB expanded. DRM-encrypted EPUBs, PDFs, audio/video, and complex fixed-layout books are not supported in this version.
+Use Electron's per-user application-data directory (normally under `%APPDATA%`) for this app:
+- `books/`: app-managed EPUB copies.
+- `library.sqlite`: SQLite metadata and reading preferences.
+- `backups/`: automatic migration backups.
+- `library.json`: retained 0.1 source, if one existed.
 
-## Checks
+Close the app before manually backing up the complete data directory. Do not delete SQLite WAL/SHM files while it is running.
+
+The migration keeps original JSON and imported EPUB copies. If migration fails, the app stops with an error rather than replacing saved data. Do not downgrade to 0.1 after using 0.2: 0.1 cannot read SQLite and would use its old JSON snapshot.
+
+Imports are limited to 100 MB compressed and 300 MB expanded. No accounts, analytics, or cloud services are used.
+
+## Verification
 
 ```powershell
 npm test
@@ -47,23 +70,11 @@ npm audit --audit-level=moderate
 npm run dist
 ```
 
-Desktop tests use a generated book containing two chapters and an inert malicious script, and store data in a temporary directory. They never modify your reading library. Screenshots are generated in `test-results`, which is excluded from Git.
+Desktop tests use generated EPUB content and isolated temporary data/profile folders. Installer tests use a separate app identity. See [validation](docs/VALIDATION.md) for exact coverage and remaining limits.
 
-Windows CI runs on pushes and pull requests. The lockfile pins the dependency graph. Overrides update the EPUB XML parser and packaging glob matcher; desktop tests verify the resulting integration.
+Windows GitHub Actions run on pushes and pull requests. A separate packaging workflow produces an installer artifact on manual invocation or version tags. Build outputs, personal EPUBs, and reading data are excluded from Git.
 
-## Installation
+See [architecture](docs/ARCHITECTURE.md) for implementation details.
 
-`npm run dist` produces a Windows x64 NSIS installer under `release`. Local development builds are unsigned and may show a Windows publisher warning. Signing and Microsoft Store submission have not been performed.
-
-## Version control
-
-Repository: https://github.com/AtharvGoel/epub_reader
-
-Milestones are committed and pushed separately. Personal books, app data, dependencies, build outputs, and credentials are excluded. Use feature branches and pull requests for subsequent changes; keep `main` buildable.
-
-## Next milestones
-
-Drag-and-drop import, embedded cover artwork, spacing and font-family controls, continuous scrolling, accessibility review with a screen reader, and a larger EPUB compatibility corpus. Before public release: app icon, dependency license notices, product license decision, signed/MSIX packaging, upgrade/uninstall testing, privacy/support pages, and Store certification.
-
-Source is private-use / all rights reserved pending the owner's license decision. A free Store price does not require making the source public.
+Source remains private-use / all rights reserved pending the owner's license decision. A free Store price does not require public source code.
 

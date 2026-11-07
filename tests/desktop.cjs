@@ -2,7 +2,6 @@ const { _electron: electron, expect } = require('@playwright/test');
 const fs = require('node:fs/promises');
 const os = require('node:os');
 const path = require('node:path');
-const { createHash } = require('node:crypto');
 const { fixture } = require('./fixture.cjs');
 (async () => {
  const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'epub-desktop-'));
@@ -13,6 +12,7 @@ const { fixture } = require('./fixture.cjs');
  delete env.ELECTRON_RUN_AS_NODE;
  async function launch() {
   app = await electron.launch({ args: process.env.EPUB_TEST_EXECUTABLE ? [] : ['.'], executablePath: process.env.EPUB_TEST_EXECUTABLE || undefined, env });
+  app.process().stderr.on('data', chunk => process.stderr.write(chunk));
   const page = await app.firstWindow();
   page.on('pageerror', e => console.error('PAGE ERROR:', e.message));
   await page.getByRole('heading', {name:'My library.'}).waitFor();
@@ -26,6 +26,11 @@ const { fixture } = require('./fixture.cjs');
   await expect(page.locator('.loading')).toHaveCount(0, {timeout:30000});
   await expect(page.frameLocator('iframe').getByRole('heading', {name:'The beginning', exact:true})).toBeVisible();
   await expect(page.locator('.error')).toHaveCount(0);
+  const firstLocation=await page.evaluate(()=>window.reader.list().then(books=>books[0].location));
+  await page.getByRole('button',{name:'Next →',exact:true}).click();
+  await expect.poll(()=>page.evaluate(()=>window.reader.list().then(books=>books[0].location))).not.toBe(firstLocation);
+  await page.getByRole('button',{name:'← Previous',exact:true}).click();
+  await expect(page.frameLocator('iframe').getByRole('heading',{name:'The beginning',exact:true})).toBeVisible();
   await page.getByRole('button', {name:'Search',exact:true}).click();
   await page.getByLabel('Search within book').fill('story continues');
   await page.getByRole('button', {name:'Find',exact:true}).click();
@@ -98,5 +103,6 @@ const { fixture } = require('./fixture.cjs');
   console.log('PASS: legacy migration and backups, settings persistence, resizing, images, internal footnotes, damaged import recovery, managed removal;  import, render, chapter navigation, dark theme, bookmarks, restart persistence, duplicate import, disabled book scripts.');
  } finally { if(app) await app.close(); await fs.rm(temporary, { recursive:true, force:true }); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
+
 
 
