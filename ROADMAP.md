@@ -62,10 +62,36 @@ Acceptance: dropping a completed EPUB into a linked folder imports it once; rest
 
 ## Advanced reading tools — Planned
 
-- Highlights and notes anchored with EPUB CFIs.
+### Passage selection menu — Planned (user requested)
+
+Selecting text should show a compact menu beside the passage:
+
+- **Highlight:** choose one of several colours; change the colour or remove the highlight later.
+- **Add note:** write a note attached to the selected passage; reopen, edit, or delete it later.
+- **Search the web:** send the selected text as a search query to the device's default browser, avoiding manual copy/paste.
+- **Look up:** when the selection is a single word, show its meaning in an in-app dictionary panel.
+
+Highlights and notes:
+- Anchor selections with EPUB CFIs and retain the selected text as context.
+- Store highlights, colour choices, and notes locally in SQLite.
+- Restore them after restarting, resizing, or changing fonts.
+- Make existing annotations easy to revisit and usable with keyboard navigation.
+
+Dictionary and browser behaviour:
+- Keep dictionary definitions inside the reader. Choose a dictionary source, its licence, supported languages, and offline/download requirements before implementation.
+- Prefer offline definitions where feasible; clearly indicate any lookup that requires a connection.
+- Only send a selection to an external search service when the user chooses **Search the web**.
+- Encode the passage safely into a search URL and open it through a restricted desktop action, rather than giving book content general browser-launch access.
+- Handle punctuation, hyphenated words, and selections spanning page boundaries; show a useful message when no definition is found.
+
+Acceptance: selecting a passage offers multiple highlight colours, a note action, and web search; selecting a single word also offers **Look up**. Highlights and notes remain attached after reflow and restart, web search opens the selected text in the default browser, and dictionary results appear without leaving the app.
+
+### Other advanced tools — Planned
+
 - Collections, tags, favorites, and reading status.
 - Optional reading goals and statistics stored locally.
 - In-app backup/export and restore with conflict handling.
+
 
 ## Accessibility and reliability — Planned
 
