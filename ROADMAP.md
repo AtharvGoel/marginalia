@@ -9,7 +9,7 @@ Status: **Done**, **In progress**, **Planned**, or **Explore**. The order below 
 - **Done:** Separate library, navigation, settings, and reading-engine modules.
 - **Done:** SQLite for library metadata, saved positions, bookmarks, and reading preferences.
 - **Done:** Automatic migration from 0.1, with backups and rollback tests.
-- **In progress:** Broader reading checks and install/upgrade/uninstall validation.
+- **Done:** Broader reading checks and isolated install/version-upgrade/uninstall validation.
 - **Done:** Standard Windows uninstaller; books and reading data preserved by default.
 - **Done:** Version control with milestone pushes and a feature branch.
 

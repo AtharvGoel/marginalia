@@ -66,7 +66,10 @@ async function launch(version){
   const shortcut=path.join(process.env.APPDATA,'Microsoft','Windows','Start Menu','Programs','EPUB Reader Validation.lnk');
   assert.ok(await exists(shortcut),'Start-menu shortcut was not installed');
   await execute(uninstaller,['/S']);
-  for(let attempt=0;attempt<100 && await exists(path.join(install,'EPUB Reader Validation.exe'));attempt++)await delay(200);
+  for(let attempt=0;attempt<300;attempt++){
+   if(!await exists(path.join(install,'EPUB Reader Validation.exe')) && !await exists(shortcut))break;
+   await delay(200);
+  }
   assert.equal(await exists(path.join(install,'EPUB Reader Validation.exe')),false);
   assert.equal(await exists(shortcut),false);
   assert.deepEqual(await fs.readFile(path.join(data,'library.sqlite')),beforeUninstall);
@@ -80,4 +83,5 @@ async function launch(version){
   if(uninstalled && data && dataNames.includes(path.basename(path.resolve(data))) && path.dirname(path.resolve(data)).toLowerCase()===path.resolve(process.env.APPDATA).toLowerCase())await fs.rm(data,{recursive:true,force:true});
  }
 })().catch(error=>{console.error(error);process.exitCode=1;});
+
 

@@ -12,7 +12,8 @@
     "start": "electron .",
     "test": "node --test tests/storage.test.cjs tests/database.test.cjs tests/library-service.test.cjs",
     "dist": "npm run build && electron-builder --win nsis --x64",
-    "test:desktop": "node tests/desktop.cjs"
+    "test:desktop": "node tests/desktop.cjs",
+    "test:installer": "node tests/installer.cjs"
   },
   "dependencies": {
     "@xmldom/xmldom": "0.9.12",
