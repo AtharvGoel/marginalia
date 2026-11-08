@@ -1,5 +1,6 @@
 import type { Entry, Preferences } from '../types';
 export interface DesktopAPI {
+  toggleFullscreen(): Promise<void>;
   getFullscreen(): Promise<boolean>;
   setFullscreen(value:boolean): Promise<void>;
   onFullscreen(callback:(value:boolean)=>void): ()=>void;

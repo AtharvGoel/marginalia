@@ -45,6 +45,7 @@ else {
       width:1280,height:850,minWidth:820,minHeight:600,backgroundColor:'#f5f3ed',title:'EPUB Reader',
       webPreferences:{ preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true },
     });
+    handle('window:fullscreen:toggle',()=>{win.setFullScreen(!win.isFullScreen());});
     handle('window:fullscreen:get',()=>win.isFullScreen());
     handle('window:fullscreen:set',value=>{if(typeof value!=='boolean')throw new Error('Invalid fullscreen request.');win.setFullScreen(value);});
     win.on('enter-full-screen',()=>win.webContents.send('window:fullscreen',true));
@@ -76,7 +77,7 @@ else {
     event.preventDefault();
     // Reject new IPC writes while waiting for existing work to finish.
 
-    for (const channel of ['library:list','book:import','book:read','book:update','book:remove','book:inspect','window:fullscreen:get','window:fullscreen:set','preferences:get','preferences:migrate','preferences:set']) ipcMain.removeHandler(channel);
+    for (const channel of ['library:list','book:import','book:read','book:update','book:remove','book:inspect','window:fullscreen:toggle','window:fullscreen:get','window:fullscreen:set','preferences:get','preferences:migrate','preferences:set']) ipcMain.removeHandler(channel);
     Promise.resolve(library?.close()).catch(error => console.error('Could not close library:',error)).finally(() => {exiting=true;app.quit();});
   });
 }

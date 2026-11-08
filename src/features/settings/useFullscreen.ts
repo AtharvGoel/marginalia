@@ -9,14 +9,14 @@ export function useFullscreen(report:ReportError){
   return unsubscribe;
  },[report]);
  const onKey=(key:string)=>{
-  if(key==='F11')void desktop.setFullscreen(!fullscreen).catch(report);
-  if(key==='Escape'&&fullscreen)void desktop.setFullscreen(false).catch(report);
+  if(key==='F11')void desktop.toggleFullscreen().catch(report);
+  if(key==='Escape')void desktop.setFullscreen(false).catch(report);
  };
  useEffect(()=>{
   const keydown=(event:KeyboardEvent)=>{
-   if((event.key==='F11'||event.key==='Escape'&&fullscreen)&&!event.repeat){event.preventDefault();onKey(event.key);}
+   if((event.key==='F11'||event.key==='Escape')&&!event.repeat){event.preventDefault();onKey(event.key);}
   };
   window.addEventListener('keydown',keydown);return()=>window.removeEventListener('keydown',keydown);
- },[fullscreen,report]);
- return{fullscreen,onKey,toggleFullscreen:()=>{void desktop.setFullscreen(!fullscreen).catch(report);}};
+ },[report]);
+ return{fullscreen,onKey,toggleFullscreen:()=>{void desktop.toggleFullscreen().catch(report);}};
 }

@@ -51,7 +51,7 @@ The reader owns a bounded-width page container with adjustable margins. A Resize
 
 Continuous mode uses the continuous view manager. Chapter targets are resolved to CFIs; post-layout alignment uses the actual content-frame position to account for neighbouring views inserted by the engine. This logic stays inside the EPUB adapter.
 
-The trusted desktop bridge exposes fullscreen get/set and change events. Native and renderer shortcuts support F11/Escape, including focus inside a book. Book content still has scripts disabled and no direct desktop bridge access.
+The trusted desktop bridge exposes fullscreen get/set/toggle and change events. Native and renderer shortcuts support F11/Escape, including focus inside a book. Book content still has scripts disabled and no direct desktop bridge access.
 
 ## Schema 2 upgrade
 

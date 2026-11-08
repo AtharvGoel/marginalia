@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('reader', {
+  toggleFullscreen:()=>ipcRenderer.invoke('window:fullscreen:toggle'),
   getFullscreen:()=>ipcRenderer.invoke('window:fullscreen:get'),
   setFullscreen:value=>ipcRenderer.invoke('window:fullscreen:set',value),
   onFullscreen:callback=>{
