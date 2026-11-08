@@ -1,5 +1,8 @@
 import type { Entry, Preferences } from '../types';
 export interface DesktopAPI {
+  getFullscreen(): Promise<boolean>;
+  setFullscreen(value:boolean): Promise<void>;
+  onFullscreen(callback:(value:boolean)=>void): ()=>void;
   getPreferences(): Promise<Preferences | null>;
   migratePreferences(value: Preferences): Promise<Preferences>;
   setPreferences(value: Preferences): Promise<Preferences>;

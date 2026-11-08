@@ -4,6 +4,7 @@ const fs = require('node:fs/promises');
 const os = require('node:os');
 const path = require('node:path');
 const { DatabaseSync } = require('node:sqlite');
+const defaults=require('../shared/reading-defaults.json');
 const { openLibrary } = require('../electron/database.cjs');
 const entry = { id:'a'.repeat(64),title:'A saved book',author:'An author',added:123,lastOpened:456,location:'epubcfi(/6/2!/4/2)',bookmarks:['first','second'] };
 async function temporary(work) {
@@ -59,12 +60,12 @@ test('preferences are backed up once, validated, and survive restart', () => tem
  let db=await openLibrary(root);
  assert.equal(db.getPreferences(),null);
  await db.migratePreferences({theme:'sepia',fontSize:23});
- db.setPreferences({theme:'dark',fontSize:27});
+ db.setPreferences({...defaults,theme:'dark',fontSize:27});
  assert.throws(() => db.setPreferences({theme:'invalid',fontSize:27}),/Invalid/);
  assert.throws(() => db.setPreferences({theme:'dark',fontSize:Infinity}),/Invalid/);
  db.close();
  db=await openLibrary(root);
- assert.deepEqual(await db.migratePreferences({theme:'light',fontSize:20}),{theme:'dark',fontSize:27});
+ assert.deepEqual(await db.migratePreferences({theme:'light',fontSize:20}),{...defaults,theme:'dark',fontSize:27});
  assert.equal((await fs.readdir(path.join(root,'backups'))).length,1);
  db.close();
 }));
