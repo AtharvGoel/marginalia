@@ -46,16 +46,27 @@ export class EpubSession{
  private async alignScroll(r:Rendition,target?:string){
   if(this.preferences?.layout!=='scroll'||!target?.startsWith('epubcfi('))return;
   const section=new EpubCFI(target).spinePos;
-  for(let attempt=0;attempt<3;attempt++){
-   if(this.disposed||this.rendition!==r)return;
+  const deadline=performance.now()+1000;
+  let stableSince=performance.now(),previousHeight=-1;
+  while(performance.now()<deadline){
+   if(this.disposed||this.rendition!==r||this.acceptLocations)return;
    const contents=(r.getContents()as unknown as Contents[]).find(content=>content.sectionIndex===section);
-   const frame=contents?.window.frameElement as HTMLIFrameElement|null;
+   // File/blob sandbox origins may hide frameElement; match the owned document instead.
+   const frame=contents?.window.frameElement as HTMLIFrameElement|null || Array.from(this.host?.querySelectorAll<HTMLIFrameElement>('iframe')||[]).find(candidate=>candidate.contentDocument===contents?.document);
    const container=this.host?.querySelector<HTMLElement>('.epub-container');
-   if(!contents||!frame||!container)return;
-   const position=await contents.locationOf(target);
-   const delta=frame.getBoundingClientRect().top+position.top-container.getBoundingClientRect().top-8;
-   if(Math.abs(delta)<2)return;
-   container.scrollTop+=delta;
+   if(contents&&frame&&container){
+    const position=await contents.locationOf(target);
+    const box=container.getBoundingClientRect();
+    const top=frame.getBoundingClientRect().top+position.top-box.top;
+    const before=container.scrollTop;
+    const height=container.scrollHeight;
+    container.scrollTop=Math.max(0,Math.min(height-container.clientHeight,before+top-8));
+    const moved=Math.abs(container.scrollTop-before)>1;
+    if(moved||height!==previousHeight||top<0||top>=box.height)stableSince=performance.now();
+    else if(performance.now()-stableSince>=300)return;
+    previousHeight=height;
+   }else stableSince=performance.now();
+   // The continuous manager trims neighbouring views after 250ms.
    await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));
   }
  }
@@ -106,7 +117,7 @@ export class EpubSession{
   catch(error){if(this.disposed)return;if(!target)throw error;this.lastCfi=undefined;await r.display();}
   // Align once more after theme injection and font metrics have settled.
   await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));
-  if(!this.disposed&&this.rendition===r&&this.lastCfi)await r.display(this.lastCfi);
+  if(!this.disposed&&this.rendition===r&&!this.acceptLocations&&this.lastCfi)await r.display(this.lastCfi);
   await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));
   await this.alignScroll(r,this.lastCfi);
   if(!this.disposed&&this.rendition===r){this.fingerprint=key;host.dataset.layout=p.layout;}
@@ -131,7 +142,7 @@ export class EpubSession{
   this.lastCfi=destination.startsWith('epubcfi(')?destination:undefined;
   await r.display(destination);
   await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));
-  if(!this.disposed&&this.rendition===r)await r.display(destination);
+  if(!this.disposed&&this.rendition===r&&!this.acceptLocations)await r.display(destination);
   await this.alignScroll(r,destination);
   await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));
  });}

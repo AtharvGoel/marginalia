@@ -92,9 +92,13 @@ const{fixture}=require('./fixture.cjs');
   await expect.poll(currentCfi,{timeout:10000}).not.toBe(before);
   await page.getByRole('button',{name:'Chapter 15',exact:true}).click();
   await expect(page.getByRole('button',{name:'Chapter 15',exact:true})).toHaveAttribute('aria-current','location');
+  await settled();
   await expect(async()=>{await expect((await contentFrame('Chapter 15')).locator('h1')).toBeInViewport({timeout:1000});}).toPass({timeout:8000});
-  await page.mouse.move(area.x+100,area.y+100);await page.mouse.wheel(0,1800);
-  await expect.poll(()=>page.locator('.chapter-list [aria-current=location]').innerText(),{timeout:15000}).not.toBe('Chapter 15');
+  await page.mouse.move(area.x+100,area.y+100);
+  await expect(async()=>{
+   await page.mouse.wheel(0,900);
+   await expect.poll(()=>page.locator('.chapter-list [aria-current=location]').innerText(),{timeout:1000}).not.toBe('Chapter 15');
+  }).toPass({timeout:12000});
   await page.getByRole('button',{name:'Reading settings',exact:true}).click();
   await page.getByLabel('Reading mode',{exact:true}).selectOption('paginated');
   await expect(page.locator('.epub-host')).toHaveAttribute('data-layout','paginated',{timeout:30000});await settled();

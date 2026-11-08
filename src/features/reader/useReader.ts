@@ -4,14 +4,14 @@ import {EpubSession}from'../../services/epub';
 import type{Chapter,Entry,Match,Preferences,ReportError,SaveBook}from'../../types';
 export function useReader(entry:Entry|null,save:SaveBook,report:ReportError,preferences:Preferences,onKey:(key:string)=>void){
  const host=useRef<HTMLDivElement>(null),session=useRef<EpubSession|null>(null);
- const [loading,setLoading]=useState(false),[adjusting,setAdjusting]=useState(false);
+ const [loading,setLoading]=useState(false),[pending,setPending]=useState(0);
  const [chapters,setChapters]=useState<Chapter[]>([]),[chapter,setChapter]=useState(''),[chapterHref,setChapterHref]=useState(''),[current,setCurrent]=useState('');
  const [searchText,setSearchText]=useState(''),[matches,setMatches]=useState<Match[]>([]),[searching,setSearching]=useState(false);
  const latest=useRef({save,report,preferences,onKey});latest.current={save,report,preferences,onKey};
  useEffect(()=>{
   if(!entry||!host.current)return;
   let mounted=true,resizeTimer:ReturnType<typeof setTimeout>;
-  setLoading(true);setAdjusting(false);setChapters([]);setChapter('');setChapterHref('');setCurrent('');setSearchText('');setMatches([]);setSearching(false);
+  setLoading(true);setPending(0);setChapters([]);setChapter('');setChapterHref('');setCurrent('');setSearchText('');setMatches([]);setSearching(false);
   const reader=new EpubSession({
    chapters:value=>{if(mounted)setChapters(value);},
    relocated:(cfi,label,href)=>{if(!mounted)return;setCurrent(cfi);setChapter(label);setChapterHref(href);void latest.current.save(entry.id,{location:cfi});},
@@ -36,12 +36,17 @@ export function useReader(entry:Entry|null,save:SaveBook,report:ReportError,pref
   const reader=session.current;
   if(!reader)return;
   const timer=setTimeout(()=>{
-   setAdjusting(true);
-   void reader.configure(latest.current.preferences).catch(error=>{if(session.current===reader)report(error);}).finally(()=>{if(session.current===reader)setAdjusting(false);});
+   if(session.current!==reader)return;
+   setPending(count=>count+1);
+   void reader.configure(latest.current.preferences).catch(error=>{if(session.current===reader)report(error);}).finally(()=>{if(session.current===reader)setPending(count=>Math.max(0,count-1));});
   },120);
   return()=>clearTimeout(timer);
  },[preferences.theme,preferences.fontSize,preferences.fontFamily,preferences.lineHeight,preferences.margin,preferences.readingWidth,preferences.layout]);
- const navigate=(target:string)=>{void session.current?.navigate(target).catch(report);};
+ const navigate=(target:string)=>{
+  const reader=session.current;if(!reader)return;
+  setPending(count=>count+1);
+  void reader.navigate(target).catch(error=>{if(session.current===reader)report(error);}).finally(()=>{if(session.current===reader)setPending(count=>Math.max(0,count-1));});
+ };
  const next=()=>{void session.current?.next().catch(report);};
  const previous=()=>{void session.current?.previous().catch(report);};
  const search=async()=>{
@@ -60,6 +65,6 @@ export function useReader(entry:Entry|null,save:SaveBook,report:ReportError,pref
   };
   window.addEventListener('keydown',handler);return()=>window.removeEventListener('keydown',handler);
  },[entry?.id]);
- return{host,busy:loading||adjusting,chapters,chapter,chapterHref,current,searchText,setSearchText,matches,searching,search,navigate,next,previous};
+ return{host,busy:loading||pending>0,chapters,chapter,chapterHref,current,searchText,setSearchText,matches,searching,search,navigate,next,previous};
 }
 export type ReaderControls=ReturnType<typeof useReader>;

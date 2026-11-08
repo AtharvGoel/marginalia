@@ -1,4 +1,4 @@
-# Architecture — 0.2.1
+# Architecture — 0.3
 
 See [the roadmap](../ROADMAP.md) for feature scope and [validation](VALIDATION.md) for evidence and limits.
 
@@ -31,7 +31,7 @@ Book scripts are disabled. The book iframe is sandboxed; content hooks remove ac
 
 SQLite comes from Electron's bundled Node runtime (`node:sqlite`); no separately rebuilt native SQLite dependency is needed. Development and tests require Node 22.12 or newer.
 
-Database schema version 1 uses books, bookmarks, preferences, and migration-history tables. Foreign keys cascade bookmarks when a book is removed. Writes use prepared statements, validation, transactions where multiple statements are needed, WAL, and full synchronization. Shutdown drains the write queue and checkpoints the database.
+Database schema version 2 uses books, bookmarks, preferences, and migration-history tables. The reading preferences include font, line height, margins, reading width, layout, sidebar width, and collapse state. Shared defaults are bundled for both processes. Foreign keys cascade bookmarks when a book is removed. Writes use prepared statements, validation, transactions where multiple statements are needed, WAL, and full synchronization. Shutdown drains the write queue and checkpoints the database.
 
 On the first 0.2 launch:
 1. Validate the old version-1 `library.json`.
@@ -42,6 +42,22 @@ On the first 0.2 launch:
 The original JSON is retained. A failed migration rolls back and is retryable; an existing valid database does not reimport stale legacy JSON. Databases from future schema versions are refused without downgrade.
 
 Legacy appearance settings are read from localStorage, backed up as normalized preference JSON, and imported once. SQLite then becomes authoritative; localStorage is retained for recovery.
+
+## Reading reflow and window controls
+
+The chapter sidebar has a compact fixed header and a flexible scrollable navigation area. Its width and collapse state are saved; the resize divider supports pointer capture and keyboard adjustments.
+
+The reader owns a bounded-width page container with adjustable margins. A ResizeObserver handles changes caused by sidebar width, fullscreen, and window resizing. The EPUB adapter serializes layout/navigation operations. Typography and flow changes recreate the rendition while retaining the book and a stable CFI anchor. Explicit navigation and user scrolling update that anchor.
+
+Continuous mode uses the continuous view manager. Chapter targets are resolved to CFIs; post-layout alignment uses the actual content-frame position to account for neighbouring views inserted by the engine. This logic stays inside the EPUB adapter.
+
+The trusted desktop bridge exposes fullscreen get/set and change events. Native and renderer shortcuts support F11/Escape, including focus inside a book. Book content still has scripts disabled and no direct desktop bridge access.
+
+## Schema 2 upgrade
+
+Existing schema-1 SQLite libraries receive a consistent pre-upgrade snapshot under backups/ using VACUUM INTO. New preference columns and the migration marker are changed transactionally. Books, bookmarks, dates, and CFI locations are retained. Failed upgrades roll back the schema; older app versions refuse schema 2 rather than modifying it.
+
+New libraries and 0.1 JSON imports are initialized through the same migration chain. Reading comfort defaults apply without discarding the saved theme or text size.
 
 ## Bookshelf presentation
 

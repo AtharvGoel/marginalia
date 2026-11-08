@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0
+
+- Give the chapter list most of the sidebar height, with compact book details.
+- Add sidebar collapse/restore, pointer and keyboard resizing, and a current-chapter marker.
+- Add font choices, line spacing, margins, maximum text width, and continuous scrolling.
+- Add native fullscreen controls, F11, and Escape from both app controls and book content.
+- Preserve a stable passage anchor during typography changes and align continuous-mode chapter jumps.
+- Save all comfort settings in SQLite schema 2; back up schema-1 databases before migration.
+- Add long-title, multi-chapter scrolling, reflow, fullscreen, restart, and migration tests.
+
 ## 0.2.1 — 8 November 2026
 
 - Display embedded cover artwork on the bookshelf, preserving a readable title below each cover.
