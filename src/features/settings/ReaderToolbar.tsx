@@ -29,4 +29,3 @@ export function ReaderToolbar({entry,chapter,current,preferences:p,setPreference
   </section>}
  </header>;
 }
-

@@ -2,12 +2,12 @@ import {useEffect,useRef,useState}from'react';
 import {desktop}from'../../services/desktop';
 import {EpubSession}from'../../services/epub';
 import type{Chapter,Entry,Match,Preferences,ReportError,SaveBook}from'../../types';
-export function useReader(entry:Entry|null,save:SaveBook,report:ReportError,preferences:Preferences){
+export function useReader(entry:Entry|null,save:SaveBook,report:ReportError,preferences:Preferences,onKey:(key:string)=>void){
  const host=useRef<HTMLDivElement>(null),session=useRef<EpubSession|null>(null);
  const [loading,setLoading]=useState(false),[adjusting,setAdjusting]=useState(false);
  const [chapters,setChapters]=useState<Chapter[]>([]),[chapter,setChapter]=useState(''),[chapterHref,setChapterHref]=useState(''),[current,setCurrent]=useState('');
  const [searchText,setSearchText]=useState(''),[matches,setMatches]=useState<Match[]>([]),[searching,setSearching]=useState(false);
- const latest=useRef({save,report,preferences});latest.current={save,report,preferences};
+ const latest=useRef({save,report,preferences,onKey});latest.current={save,report,preferences,onKey};
  useEffect(()=>{
   if(!entry||!host.current)return;
   let mounted=true,resizeTimer:ReturnType<typeof setTimeout>;
@@ -15,12 +15,13 @@ export function useReader(entry:Entry|null,save:SaveBook,report:ReportError,pref
   const reader=new EpubSession({
    chapters:value=>{if(mounted)setChapters(value);},
    relocated:(cfi,label,href)=>{if(!mounted)return;setCurrent(cfi);setChapter(label);setChapterHref(href);void latest.current.save(entry.id,{location:cfi});},
+   key:key=>latest.current.onKey(key),
    error:error=>{if(mounted)latest.current.report(error);},
   });
   session.current=reader;
   const observer=new ResizeObserver(()=>{
    clearTimeout(resizeTimer);
-   resizeTimer=setTimeout(()=>{if(mounted)void reader.resize().catch(latest.current.report);},150);
+   resizeTimer=setTimeout(()=>{if(mounted)void reader.resize().catch(error=>{if(mounted)latest.current.report(error);});},150);
   });
   observer.observe(host.current);
   const open=async()=>{

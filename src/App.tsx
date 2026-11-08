@@ -13,7 +13,7 @@ export function App() {
   const library = useLibrary(report);
   const { preferences, setPreferences, ready } = usePreferences(report);
   const fullscreen=useFullscreen(report);
-  const reader = useReader(library.active, library.save, report, preferences);
+  const reader = useReader(library.active, library.save, report, preferences,fullscreen.onKey);
   if (!ready) return <main><p role="status">Loading your reading preferences…</p>{error && <p role="alert">{error}</p>}</main>;
   return <div className={'app ' + preferences.theme}>
     <Sidebar preferences={preferences} setPreferences={setPreferences} active={library.active} count={library.books.length} reader={reader} save={library.save} exit={() => library.setActive(null)}/>

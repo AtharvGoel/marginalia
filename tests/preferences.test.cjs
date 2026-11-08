@@ -54,4 +54,3 @@ test('rejects unsafe or out-of-range options and retains new settings when old c
 test('shared defaults and validated default preferences agree',()=>{
  assert.deepEqual(validatePreferences(defaults),defaults);
 });
-
