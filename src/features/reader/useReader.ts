@@ -59,7 +59,7 @@ export function useReader(entry:Entry|null,save:SaveBook,report:ReportError,pref
  };
  useEffect(()=>{
   const handler=(event:KeyboardEvent)=>{
-   if(!entry||event.target instanceof HTMLInputElement||event.target instanceof HTMLSelectElement||event.target instanceof HTMLButtonElement||event.target instanceof HTMLTextAreaElement)return;
+   if(event.defaultPrevented||!entry||event.target instanceof HTMLInputElement||event.target instanceof HTMLSelectElement||event.target instanceof HTMLButtonElement||event.target instanceof HTMLTextAreaElement)return;
    if(event.key==='ArrowRight'){event.preventDefault();next();}
    if(event.key==='ArrowLeft'){event.preventDefault();previous();}
   };
