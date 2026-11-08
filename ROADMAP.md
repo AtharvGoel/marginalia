@@ -63,6 +63,25 @@ Acceptance: dropping a completed EPUB into a linked folder imports it once; rest
 - Drag-and-drop import into the app.
 - Larger compatibility corpus: illustrations, footnotes, nested contents, varied languages, and publisher layouts.
 
+### Free ebook library browsing — Planned (user requested)
+
+Add an in-app catalogue where users can discover books from free ebook libraries, starting with Project Gutenberg and allowing other sources to be added later.
+
+User experience:
+- Browse and search books by title, author, language, and subject where the source supports it.
+- View a book's description, cover, available formats, source, and rights/licence information.
+- Download an available EPUB directly into the bookshelf, with progress, cancellation, and duplicate detection.
+- Keep downloaded books available for offline reading.
+- Clearly distinguish the online catalogue from the user's own bookshelf and handle unavailable connections or sources gracefully.
+
+Before implementation:
+- Verify each source's official catalogue feeds/APIs, access requirements, download policies, and attribution requirements.
+- Choose a supported integration instead of assuming the website can simply be embedded.
+- Reuse the existing EPUB validation and managed-library import process.
+- Keep external catalogue content separate from trusted app controls and restrict downloads to the selected provider's supported resources.
+
+Acceptance: a user can search or browse Project Gutenberg within the app, inspect a book, and import an available EPUB into the bookshelf without manually saving and locating the file. Downloaded books remain readable offline. Additional providers can be added without redesigning the bookshelf.
+
 ## Advanced reading tools — Planned
 
 ### Passage selection menu — Planned (user requested)
