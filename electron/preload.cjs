@@ -1,5 +1,13 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('reader', {
+  toggleFullscreen:()=>ipcRenderer.invoke('window:fullscreen:toggle'),
+  getFullscreen:()=>ipcRenderer.invoke('window:fullscreen:get'),
+  setFullscreen:value=>ipcRenderer.invoke('window:fullscreen:set',value),
+  onFullscreen:callback=>{
+    const listener=(_event,value)=>callback(value);
+    ipcRenderer.on('window:fullscreen',listener);
+    return()=>ipcRenderer.removeListener('window:fullscreen',listener);
+  },
   list: () => ipcRenderer.invoke('library:list'),
   importBooks: () => ipcRenderer.invoke('book:import'),
   inspectBook: id => ipcRenderer.invoke('book:inspect',id),

@@ -3,12 +3,8 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { validId } = require('./storage.cjs');
-const SCHEMA_VERSION = 1;
-const themes = new Set(['light', 'sepia', 'dark']);
-function preferences(value) {
-  if (!value || !themes.has(value.theme) || !Number.isFinite(value.fontSize) || value.fontSize < 14 || value.fontSize > 30) throw new Error('Invalid reading preferences.');
-  return { theme: value.theme, fontSize: value.fontSize };
-}
+const SCHEMA_VERSION = 2;
+const {validatePreferences} = require('./preferences.cjs');
 function validateEntry(book) {
   if (!book || !validId(book.id) || typeof book.title !== 'string' || typeof book.author !== 'string' || !Number.isFinite(book.added)) throw new Error('Invalid book in saved library.');
   if (book.lastOpened != null && !Number.isFinite(book.lastOpened)) throw new Error('Invalid last-opened date.');
@@ -75,6 +71,27 @@ async function openLibrary(root) {
         db.exec('PRAGMA user_version = 1');
       });
     }
+    if(version<2){
+      if(version===1){
+        const directory=path.join(root,'backups');
+        await fs.mkdir(directory,{recursive:true});
+        const snapshot=path.join(directory,'library-v0.2-'+Date.now()+'-'+crypto.randomUUID()+'.sqlite');
+        db.prepare('VACUUM INTO ?').run(snapshot);
+      }
+      transaction(db,()=>{
+        db.exec(`
+          ALTER TABLE preferences ADD COLUMN font_family TEXT NOT NULL DEFAULT 'book' CHECK(font_family IN ('book','serif','sans','mono'));
+          ALTER TABLE preferences ADD COLUMN line_height REAL NOT NULL DEFAULT 1.6 CHECK(line_height BETWEEN 1.3 AND 2.2);
+          ALTER TABLE preferences ADD COLUMN margin REAL NOT NULL DEFAULT 24 CHECK(margin BETWEEN 8 AND 64);
+          ALTER TABLE preferences ADD COLUMN reading_width REAL NOT NULL DEFAULT 800 CHECK(reading_width BETWEEN 480 AND 1200);
+          ALTER TABLE preferences ADD COLUMN layout TEXT NOT NULL DEFAULT 'paginated' CHECK(layout IN ('paginated','scroll'));
+          ALTER TABLE preferences ADD COLUMN sidebar_width REAL NOT NULL DEFAULT 280 CHECK(sidebar_width BETWEEN 220 AND 420);
+          ALTER TABLE preferences ADD COLUMN sidebar_collapsed INTEGER NOT NULL DEFAULT 0 CHECK(sidebar_collapsed IN (0,1));
+          PRAGMA user_version = 2;
+        `);
+        db.prepare('INSERT INTO migration_history VALUES(2,?,?)').run(Date.now(),'reading comfort preferences');
+      });
+    }
     // Use WAL for small durable updates, and checkpoint cleanly on exit.
     db.exec('PRAGMA journal_mode = WAL; PRAGMA synchronous = FULL;');
     return new LibraryDatabase(db, root);
@@ -130,18 +147,19 @@ class LibraryDatabase {
   }
   remove(id) { this.get(id); this.db.prepare('DELETE FROM books WHERE id=?').run(id); }
   getPreferences() {
-    const row = this.db.prepare('SELECT theme, font_size AS fontSize FROM preferences WHERE id=1').get();
-    return row ? { ...row } : null;
+    const row=this.db.prepare('SELECT theme,font_size AS fontSize,font_family AS fontFamily,line_height AS lineHeight,margin,reading_width AS readingWidth,layout,sidebar_width AS sidebarWidth,sidebar_collapsed AS sidebarCollapsed FROM preferences WHERE id=1').get();
+    return row?{...row,sidebarCollapsed:!!row.sidebarCollapsed}:null;
   }
   setPreferences(value) {
-    const p = preferences(value);
-    this.db.prepare('INSERT INTO preferences VALUES(1,?,?) ON CONFLICT(id) DO UPDATE SET theme=excluded.theme,font_size=excluded.font_size').run(p.theme,p.fontSize);
+    const p=validatePreferences(value,this.getPreferences()||undefined);
+    this.db.prepare(`INSERT INTO preferences(id,theme,font_size,font_family,line_height,margin,reading_width,layout,sidebar_width,sidebar_collapsed)
+      VALUES(1,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET theme=excluded.theme,font_size=excluded.font_size,font_family=excluded.font_family,line_height=excluded.line_height,margin=excluded.margin,reading_width=excluded.reading_width,layout=excluded.layout,sidebar_width=excluded.sidebar_width,sidebar_collapsed=excluded.sidebar_collapsed`).run(p.theme,p.fontSize,p.fontFamily,p.lineHeight,p.margin,p.readingWidth,p.layout,p.sidebarWidth,Number(p.sidebarCollapsed));
     return p;
   }
   async migratePreferences(value) {
     const saved = this.getPreferences();
     if (saved) return saved;
-    const p = preferences(value);
+    const p = validatePreferences(value);
     await backup(this.root, 'preferences-v0.1', JSON.stringify(p, null, 2));
     return this.setPreferences(p);
   }

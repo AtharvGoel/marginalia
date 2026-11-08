@@ -1,0 +1,11 @@
+{
+  "theme": "light",
+  "fontSize": 20,
+  "fontFamily": "book",
+  "lineHeight": 1.6,
+  "margin": 24,
+  "readingWidth": 800,
+  "layout": "paginated",
+  "sidebarWidth": 280,
+  "sidebarCollapsed": false
+}

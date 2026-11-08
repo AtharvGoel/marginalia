@@ -4,7 +4,15 @@ This is the reviewable list of future scope. It lives with the source code and w
 
 Status: **Done**, **In progress**, **Planned**, or **Explore**. The order below is a proposed sequence, not a delivery-date commitment.
 
-## Current release — 0.2 foundation
+## Current release — 0.3 reading comfort
+
+- **Done:** Compact chapter sidebar, collapsible/resizable with keyboard support.
+- **Done:** Current-chapter highlighting and keeping the active entry visible.
+- **Done:** Font choices, line spacing, margins, maximum reading width, fullscreen, and pages/continuous scrolling.
+- **Done:** Saved comfort settings, pre-upgrade SQLite snapshots, and rollback checks.
+- **Done:** Passage-preserving reflow and cross-chapter scrolling checks.
+
+## Previous foundation — 0.2
 
 - **Done:** Separate library, navigation, settings, and reading-engine modules.
 - **Done:** SQLite for library metadata, saved positions, bookmarks, and reading preferences.
@@ -55,10 +63,10 @@ Acceptance: dropping a completed EPUB into a linked folder imports it once; rest
 
 ### Reading comfort — Planned
 
-- **User requested:** Give the Chapters panel substantially more usable height. Long book titles and generous header spacing currently squeeze it into a small area (example: "On Looking: Eleven Walks with Expert Eyes" in the supplied screenshot). Compact or collapse the title/header, keep navigation accessible, and consider a resizable/collapsible sidebar. Verify with the supplied long-title screenshot and a long table of contents before calling the layout fixed.
+- **Done (0.3, user requested):** Give the Chapters panel substantially more usable height. Long book titles and generous header spacing currently squeeze it into a small area (example: "On Looking: Eleven Walks with Expert Eyes" in the supplied screenshot). The compact title/header and resizable/collapsible sidebar are implemented. Checked with a long title and a 30-chapter contents list at normal and minimum window sizes.
 
 
-- Font-family choices, line spacing, margins, continuous scrolling, and fullscreen reading.
+- **Done (0.3):** Font-family choices, line spacing, margins, continuous scrolling, fullscreen, and adjustable reading width.
 - Reading progress and clearer chapter/page indicators.
 - Drag-and-drop import into the app.
 - Larger compatibility corpus: illustrations, footnotes, nested contents, varied languages, and publisher layouts.

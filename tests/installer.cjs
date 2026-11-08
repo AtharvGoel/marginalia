@@ -58,7 +58,7 @@ async function launch(version){
   const state=await page.evaluate(async()=>({books:await window.reader.list(),prefs:await window.reader.getPreferences()}));
   assert.equal(state.books[0].location,'installer-upgrade-position');
   assert.deepEqual(state.books[0].bookmarks,['installer-bookmark']);
-  assert.deepEqual(state.prefs,{theme:'sepia',fontSize:24});
+  assert.equal(state.prefs.theme,'sepia');assert.equal(state.prefs.fontSize,24);
   await app.close();app=null;
   const beforeUninstall=await fs.readFile(path.join(data,'library.sqlite'));
   const uninstaller=path.join(install,'Uninstall EPUB Reader Validation.exe');

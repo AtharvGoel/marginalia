@@ -1,4 +1,41 @@
-# Validation — 0.2.1
+# Validation — 0.3.0
+
+Checked on Windows 11 x64.
+
+## Passed locally
+
+- TypeScript checks and production build.
+- All 23 storage, metadata, database, and preference tests.
+- Reading, bookshelf, and reading-comfort desktop suites passed against the packaged executable.
+- Native fullscreen button, F11, and Escape worked with focus in app controls and in book content.
+- Rapid F11 toggling uses the native window state rather than delayed interface state.
+- Long-title, 30-chapter navigation check: the chapter list occupies most of the available sidebar height; active chapter is highlighted and scrolled into view.
+- Pointer and keyboard sidebar resizing, collapse/restore, and saved width/collapse state.
+- Original book font, Georgia, Segoe UI, and Consolas; line spacing, margins, and reading width checked against the rendered document.
+- A saved paragraph remains visible after typography changes and switching page/scroll modes.
+- Chapter jumps and continuous scrolling across chapter boundaries.
+- Minimum-size viewport (820 × 600), fullscreen resizing, and settings after a full restart.
+- Existing reading, bookmarks, search, image, footnote, cover, metadata, migration, and duplicate-import checks still pass.
+- Dependency audit: no known vulnerabilities.
+- Windows x64 NSIS installer built from the verified unpacked executable.
+
+## Migration evidence
+
+A real schema-1 SQLite fixture is upgraded to schema 2. Tests open the pre-upgrade snapshot independently and verify its original schema, theme, text size, and reading position. The upgraded database retains book dates, CFI locations, bookmarks, and appearance preferences.
+
+A deliberately incomplete old schema triggers a rollback; new columns and the version marker are not partially committed. Invalid preference values are rejected. Updated comfort settings survive restart.
+
+## Limits and follow-up
+
+Tests use generated EPUBs, not a broad publisher corpus. Complex fixed-layout books, DRM, embedded-font variations, accessibility with assistive technology, and large-library performance need further review.
+
+The standard NSIS configuration and uninstaller are unchanged from 0.2; installation/upgrade/uninstall tests below were not repeated for this release. Existing SQLite-schema migration is tested directly, separately from installer mechanics.
+
+One regression run logged a late duplicate location update rejected during shutdown; reading-position restart assertions passed. Further shutdown stress testing remains part of the reliability roadmap.
+
+Signing, a custom icon, naming, the personal bookshelf redesign, annotations, watched folders, and online catalogue browsing remain future scope.
+
+## Previous release: 0.2.1
 
 Checked on Windows 11 x64 on 8 November 2026.
 
