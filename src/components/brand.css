@@ -1,0 +1,9 @@
+/* Crop only the presentation: the supplied square artwork remains unchanged. */
+.app-brand{display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:35px;padding:14px 8px 10px;border-radius:12px;background:#203125;overflow:hidden;flex-shrink:0}
+.app-brand-icon{display:block;width:68px;height:68px;border-radius:50%;object-fit:contain}
+.app-wordmark{display:block;position:relative;overflow:hidden;width:100%;aspect-ratio:824/260}
+.app-wordmark img{position:absolute;display:block;width:124.272%;max-width:none;height:auto;left:-12.136%;top:-134.615%}
+.app-brand-compact{flex-direction:row;gap:7px;padding:0 5px 0 0;margin:0;border-radius:5px;height:34px;max-width:calc(100% - 36px);background:#203125}
+.app-brand-compact .app-brand-icon{width:26px;height:26px;flex-shrink:0}
+.app-brand-compact .app-wordmark{width:130px;aspect-ratio:760/200}
+.app-brand-compact .app-wordmark img{width:134.737%;left:-19.737%;top:-175%}

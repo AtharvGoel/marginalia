@@ -7,7 +7,7 @@ const { fixture }=require('./fixture.cjs');
 const { setTimeout:delay }=require('node:timers/promises');
 const repo=path.resolve(__dirname,'..');
 const install=path.join(repo,'release','installation-test');
-const dataNames=['epub-reader-validation','EPUB Reader Validation'];
+const dataNames=['epub-reader-validation'];
 let data,app;
 const env={...process.env};delete env.ELECTRON_RUN_AS_NODE;delete env.EPUB_READER_TEST_DATA;env.NODE_ENV='production';
 async function exists(file){try{await fs.access(file);return true;}catch{return false;}}
@@ -19,10 +19,12 @@ function execute(file,args) {
  });
 }
 async function launch(version){
- app=await electron.launch({executablePath:path.join(install,'EPUB Reader Validation.exe'),args:[],env});
+ const product=version==='0.3.0'?'EPUB Reader Validation':'Marginalia Validation';
+ app=await electron.launch({executablePath:path.join(install,product+'.exe'),args:[],env});
  const page=await app.firstWindow();
  await page.getByRole('heading',{name:'My library.'}).waitFor();
  assert.equal(await app.evaluate(({app})=>app.getVersion()),version);
+ assert.equal(await app.evaluate(({app})=>app.getName()),product);
  data=await app.evaluate(({app})=>app.getPath('userData'));
  const resolved=path.resolve(data);
  // Only this distinct validation application's data folder may be cleaned.
@@ -36,12 +38,12 @@ async function launch(version){
  for(const name of dataNames) if(await exists(path.join(process.env.APPDATA,name))) throw new Error('Existing validation app data found; refusing to replace it.');
  let uninstalled=false;
  try {
-  const old=path.join(repo,'release','validation-0.1.0','EPUB Reader Validation Setup 0.1.0.exe');
-  const current=path.join(repo,'release','validation-0.2.0','EPUB Reader Validation Setup 0.2.0.exe');
+  const old=path.join(repo,'release','validation-0.3.0','EPUB Reader Validation Setup 0.3.0.exe');
+  const current=path.join(repo,'release','validation-0.3.1','Marginalia Validation Setup 0.3.1.exe');
   await execute(old,['--current-user','/S','/D='+install]);
   const sample=path.join(repo,'release','installer-sample.epub');
   await fs.writeFile(sample,await fixture());
-  let page=await launch('0.1.0');
+  let page=await launch('0.3.0');
   await app.evaluate(({dialog},file)=>{dialog.showOpenDialog=async()=>({canceled:false,filePaths:[file]});},sample);
   await page.getByRole('button',{name:'Add books'}).click();
   const books=await page.evaluate(()=>window.reader.list());
@@ -54,29 +56,32 @@ async function launch(version){
   const before=await fs.readFile(path.join(data,'library.sqlite'));
   assert.equal(before.subarray(0,15).toString(),'SQLite format 3');
   await execute(current,['--current-user','/S','/D='+install]);
-  page=await launch('0.2.0');
+  page=await launch('0.3.1');
+  assert.equal(await exists(path.join(install,'EPUB Reader Validation.exe')),false,'Previous executable should be removed');
+  const oldShortcut=path.join(process.env.APPDATA,'Microsoft','Windows','Start Menu','Programs','EPUB Reader Validation.lnk');
+  assert.equal(await exists(oldShortcut),false,'Previous shortcut should be removed');
   const state=await page.evaluate(async()=>({books:await window.reader.list(),prefs:await window.reader.getPreferences()}));
   assert.equal(state.books[0].location,'installer-upgrade-position');
   assert.deepEqual(state.books[0].bookmarks,['installer-bookmark']);
   assert.equal(state.prefs.theme,'sepia');assert.equal(state.prefs.fontSize,24);
   await app.close();app=null;
   const beforeUninstall=await fs.readFile(path.join(data,'library.sqlite'));
-  const uninstaller=path.join(install,'Uninstall EPUB Reader Validation.exe');
+  const uninstaller=path.join(install,'Uninstall Marginalia Validation.exe');
   assert.ok(await exists(uninstaller),'Uninstaller was not installed');
-  const shortcut=path.join(process.env.APPDATA,'Microsoft','Windows','Start Menu','Programs','EPUB Reader Validation.lnk');
+  const shortcut=path.join(process.env.APPDATA,'Microsoft','Windows','Start Menu','Programs','Marginalia Validation.lnk');
   assert.ok(await exists(shortcut),'Start-menu shortcut was not installed');
   await execute(uninstaller,['/S']);
   for(let attempt=0;attempt<300;attempt++){
-   if(!await exists(path.join(install,'EPUB Reader Validation.exe')) && !await exists(shortcut))break;
+   if(!await exists(path.join(install,'Marginalia Validation.exe')) && !await exists(shortcut))break;
    await delay(200);
   }
-  assert.equal(await exists(path.join(install,'EPUB Reader Validation.exe')),false);
+  assert.equal(await exists(path.join(install,'Marginalia Validation.exe')),false);
   assert.equal(await exists(shortcut),false);
   assert.deepEqual(await fs.readFile(path.join(data,'library.sqlite')),beforeUninstall);
   await fs.access(path.join(data,'books',id+'.epub'));
   await fs.access(sample);
   uninstalled=true;
-  console.log('PASS: isolated silent installation, version upgrade preserving SQLite and preferences, uninstaller removal of app and shortcut, preservation of books and reading data.');
+  console.log('PASS: isolated silent installation, rename upgrade preserving SQLite, books, bookmarks and preferences, uninstaller removal of app and shortcut, preservation of books and reading data.');
  } finally {
   if(app)await app.close();
   // Failed installations are left intact for diagnosis; never touch the normal app.

@@ -1,24 +1,30 @@
-# EPUB Reader — 0.3
+# Marginalia — 0.3.1
 
 An offline Windows desktop reader for DRM-free, reflowable EPUB books.
 
-**Review future features and priorities in [ROADMAP.md](ROADMAP.md).** This includes the personal bookshelf redesign, linked folders with automatic importing, and finding a good name for the app.
+**Review future features and priorities in [ROADMAP.md](ROADMAP.md).** This includes the personal bookshelf redesign, linked folders with automatic importing, annotations, and free ebook catalogue browsing.
 
 ## Install or uninstall
 
-Open `release/EPUB Reader Setup 0.3.0.exe` to install on Windows 11 x64. Packaged apps do not need Node.js installed.
+Open `release/Marginalia Setup 0.3.1.exe` to install on Windows 11 x64. Packaged apps do not need Node.js installed.
 
 To uninstall:
-- Open **Windows Settings → Apps → Installed apps → EPUB Reader → Uninstall**, or
-- Run **Uninstall EPUB Reader.exe** in the installation folder.
+- Open **Windows Settings → Apps → Installed apps → Marginalia → Uninstall**, or
+- Run **Uninstall Marginalia.exe** in the installation folder.
 
 The uninstaller removes the app and its shortcuts and keeps your imported books, bookmarks, positions, and preferences. Your original EPUB files are untouched. Signing and Microsoft Store submission have not been performed; local builds may show an unknown-publisher warning.
 
 ## Review without reinstalling
 
-Close any running EPUB Reader, then open `release/win-unpacked/EPUB Reader.exe`. This build uses your existing library. Run the 0.3 installer when you want your installed shortcuts to launch the update.
+Close any running Marginalia, then open `release/win-unpacked/Marginalia.exe`. This build uses your existing library. Run the 0.3 installer when you want your installed shortcuts to launch the update.
 
 The first 0.3 launch upgrades saved preferences and creates a SQLite backup for existing 0.2 libraries. Use 0.3 or newer afterward; older builds cannot read the upgraded settings database.
+
+## Name and artwork
+
+The app is now **Marginalia**, using the owner’s supplied reading-room emblem and stylized name. The bookshelf shows the full branding; the reader uses a compact header so chapters retain their space. Windows executable, installer, shortcuts, and uninstall labels use the new name.
+
+The internal application ID and `%APPDATA%\epub-reader` data directory stay stable. Upgrading from EPUB Reader retains books, saved positions, bookmarks, and settings. The rename does not create a separate library or change the database format.
 
 ## Reading controls
 
@@ -81,7 +87,7 @@ New imports use the EPUB's embedded title and author immediately, regardless of 
 
 ## Data and backups
 
-Use Electron's per-user application-data directory (normally under `%APPDATA%`) for this app:
+The library remains in `%APPDATA%\epub-reader`, including after the Marginalia rename:
 - `books/`: app-managed EPUB copies.
 - `covers/`: disposable cached thumbnails and embedded presentation metadata.
 - `library.sqlite`: SQLite metadata and reading preferences.

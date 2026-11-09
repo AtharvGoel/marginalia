@@ -1,3 +1,4 @@
+import { Brand } from './Brand';
 import { useEffect, useRef, useState } from 'react';
 import type { Entry, Preferences, SaveBook } from '../types';
 import type { ReaderControls } from '../features/reader/useReader';
@@ -16,7 +17,7 @@ export function Sidebar({active,count,reader,save,exit,preferences,setPreference
  if(active && preferences.sidebarCollapsed)return null;
  return <aside className={'sidebar'+(active?' reader-sidebar':'')+(dragWidth!==null?' is-resizing':'')} style={active?{width}:undefined}>
   {active ? <>
-   <div className="reader-sidebar-heading"><span className="compact-brand">◧ EPUB Reader</span><button aria-label="Hide sidebar" title="Hide sidebar" onClick={()=>setPreferences({...preferences,sidebarCollapsed:true})}>‹</button></div>
+   <div className="reader-sidebar-heading"><Brand compact/><button aria-label="Hide sidebar" title="Hide sidebar" onClick={()=>setPreferences({...preferences,sidebarCollapsed:true})}>‹</button></div>
    <button className="nav-item" onClick={exit}>← All books</button>
    <h2 className="sidebar-title" title={active.title}>{active.title}</h2>
    <div className="tabs" role="group" aria-label="Reader navigation">
@@ -27,7 +28,7 @@ export function Sidebar({active,count,reader,save,exit,preferences,setPreference
      panel==='bookmarks'?(active.bookmarks||[]).length?active.bookmarks!.map((cfi,i)=><div className="bookmark" key={cfi}><button onClick={()=>navigate(cfi)}>Bookmark {i+1}</button><button aria-label={'Remove bookmark '+(i+1)} onClick={()=>void save(active.id,{bookmarks:active.bookmarks!.filter(mark=>mark!==cfi)})}>×</button></div>):<p className="muted">Save a place using Bookmark above the page.</p>:
      <><form className="book-search" onSubmit={event=>{event.preventDefault();void search();}}><input aria-label="Search within book" placeholder="Find in this book…" minLength={2} maxLength={100} value={searchText} onChange={event=>setSearchText(event.target.value)}/><button disabled={searching||busy||searchText.trim().length<2}>{searching?'Searching…':'Find'}</button></form><p className="muted">{searching?'Searching chapters…':matches.length+' results (up to 100)'}</p>{matches.map((match,i)=><button className="search-result" key={i} onClick={()=>navigate(match.cfi)}>{match.excerpt}</button>)}</>}
    </nav>
-  </>:<><div className="brand"><span className="brand-icon">◧</span> EPUB Reader</div><div className="eyebrow">YOUR READING SPACE</div><button className="nav-item selected">▤ &nbsp; My library <span>{count}</span></button><p className="sidebar-note">A little room for<br/>your next great read.</p></>}
+  </>:<><Brand/><div className="eyebrow">YOUR READING SPACE</div><button className="nav-item selected">▤ &nbsp; My library <span>{count}</span></button><p className="sidebar-note">A little room for<br/>your next great read.</p></>}
   <div className="sidebar-footer"><span className="status-dot"/> Offline · Stored on this device</div>
   {active&&<div className="sidebar-resizer" role="separator" aria-label="Sidebar width" aria-orientation="vertical" aria-valuemin={220} aria-valuemax={Math.min(420,window.innerWidth-460)} aria-valuenow={limit(width)} tabIndex={0}
    onPointerDown={event=>{event.preventDefault();event.currentTarget.setPointerCapture(event.pointerId);drag.current={start:event.clientX,width:limit(width),latest:limit(width)};setDragWidth(limit(width));}}
