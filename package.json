@@ -1,8 +1,8 @@
 {
   "name": "epub-reader",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
-  "description": "A private, offline EPUB reader for Windows",
+  "description": "Marginalia — a personal, offline EPUB reader for Windows",
   "author": "Atharv Goel",
   "main": "electron/main.cjs",
   "scripts": {
@@ -10,9 +10,9 @@
     "typecheck": "tsc --noEmit",
     "build": "npm run typecheck && vite build",
     "start": "electron .",
-    "test": "node --test tests/storage.test.cjs tests/database.test.cjs tests/library-service.test.cjs tests/metadata.test.cjs tests/preferences.test.cjs",
+    "test": "node --test tests/storage.test.cjs tests/database.test.cjs tests/library-service.test.cjs tests/metadata.test.cjs tests/preferences.test.cjs tests/identity.test.cjs",
     "dist": "npm run build && electron-builder --win nsis --x64",
-    "test:desktop": "node tests/desktop.cjs && node tests/bookshelf.cjs && node tests/comfort.cjs",
+    "test:desktop": "node tests/desktop.cjs && node tests/bookshelf.cjs && node tests/comfort.cjs && node tests/branding.cjs",
     "test:installer": "node tests/installer.cjs"
   },
   "dependencies": {
@@ -36,7 +36,7 @@
   },
   "build": {
     "appId": "com.atharvgoel.epubreader",
-    "productName": "EPUB Reader",
+    "productName": "Marginalia",
     "directories": {
       "output": "release"
     },
@@ -44,19 +44,22 @@
       "dist/**/*",
       "electron/**/*",
       "package.json",
-      "shared/**/*"
+      "shared/**/*",
+      "branding/**/*"
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "branding/icon.ico"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "deleteAppDataOnUninstall": false,
-      "uninstallDisplayName": "EPUB Reader",
+      "uninstallDisplayName": "Marginalia",
       "createStartMenuShortcut": true,
       "createDesktopShortcut": true,
-      "runAfterFinish": false
+      "runAfterFinish": false,
+      "shortcutName": "Marginalia"
     }
   },
   "overrides": {
@@ -66,5 +69,7 @@
   "engines": {
     "node": ">=22.12.0"
   },
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "productName": "Marginalia",
+  "readerDataDirectory": "epub-reader"
 }

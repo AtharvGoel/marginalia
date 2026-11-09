@@ -23,18 +23,18 @@ jobs:
       - name: Build isolated baseline installer
         run: npx electron-builder --config tests/installer-builder.cjs --win nsis --x64
         env:
-          EPUB_INSTALLER_TEST_VERSION: '0.1.0'
+          EPUB_INSTALLER_TEST_VERSION: '0.3.0'
       - name: Build isolated upgraded installer
         run: npx electron-builder --config tests/installer-builder.cjs --win nsis --x64
         env:
-          EPUB_INSTALLER_TEST_VERSION: '0.2.0'
+          EPUB_INSTALLER_TEST_VERSION: '0.3.1'
       - run: npm run test:installer
       - run: npm run dist
       - name: Verify packaged reader
         run: npm run test:desktop
         env:
-          EPUB_TEST_EXECUTABLE: '${{ github.workspace }}\release\win-unpacked\EPUB Reader.exe'
+          EPUB_TEST_EXECUTABLE: '${{ github.workspace }}\release\win-unpacked\Marginalia.exe'
       - uses: actions/upload-artifact@v4
         with:
-          name: EPUB-Reader-Windows-x64
-          path: release/EPUB Reader Setup*.exe
+          name: Marginalia-Windows-x64
+          path: release/Marginalia Setup*.exe

@@ -1,10 +1,16 @@
-# EPUB Reader roadmap
+# Marginalia roadmap
 
 This is the reviewable list of future scope. It lives with the source code and will be updated as work is completed or priorities change.
 
 Status: **Done**, **In progress**, **Planned**, or **Explore**. The order below is a proposed sequence, not a delivery-date commitment.
 
-## Current release — 0.3 reading comfort
+## Current release — 0.3.1 Marginalia
+
+- **Done:** Owner-selected name, supplied emblem and stylized wordmark.
+- **Done:** Windows icon and consistent installer, shortcut, window and uninstall labels.
+- **Done:** Stable application identity and original library location through the rename.
+
+## Reading comfort — 0.3
 
 - **Done:** Compact chapter sidebar, collapsible/resizable with keyboard support.
 - **Done:** Current-chapter highlighting and keeping the active entry visible.
@@ -23,12 +29,9 @@ Status: **Done**, **In progress**, **Planned**, or **Explore**. The order below 
 
 ## Next usability milestones
 
-### Name and identity — Planned (user requested)
+### Name and identity — Done (0.3.1, user selected)
 
-Find a good app name to replace the working name "EPUB Reader." Review a shortlist for personality, memorability, pronunciation, and fit with the personal bookshelf direction. Check obvious existing-app, domain, and Store-name conflicts before choosing; availability checks are not a trademark clearance.
-
-Acceptance: the owner selects a name, and app titles, installer labels, documentation, and eventual visual branding use it consistently. Preserve the existing application-data location or migrate it explicitly so renaming does not hide books or reading history.
-
+The owner selected **Marginalia** and supplied the emblem and stylized name. These appear in the interface and Windows packaging. The original data directory and installer ID remain stable to preserve the existing library.
 
 ### Personal bookshelf — Planned (user requested)
 
@@ -132,7 +135,8 @@ Acceptance: selecting a passage offers multiple highlight colours, a note action
 
 ## Distribution — Planned
 
-- Custom application icon, branding, and signed builds.
+- **Done (0.3.1):** Custom application icon and supplied Marginalia branding.
+- Signed builds.
 - Product-license decision and third-party notices before public distribution.
 - Versioned GitHub releases with downloadable installers.
 - Microsoft Store packaging, accessibility checks, privacy/support pages, certification, and submission if the owner chooses.

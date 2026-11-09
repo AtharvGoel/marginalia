@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.1 — Marginalia
+
+- Rename the app to Marginalia and integrate the owner’s supplied emblem and stylized name.
+- Add a multi-resolution Windows icon and update executable, installer, shortcuts, and uninstaller labels.
+- Keep the original installer ID and explicitly preserve the existing library data location.
+- Keep branding compact in the reader to preserve chapter space.
+- Add naming, artwork-loading, data-directory, and rename-upgrade checks.
+
 ## 0.3.0
 
 - Give the chapter list most of the sidebar height, with compact book details.

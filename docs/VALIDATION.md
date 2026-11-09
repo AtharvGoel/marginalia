@@ -1,8 +1,46 @@
-# Validation — 0.3.0
+# Validation — 0.3.1 Marginalia
+
+Checked on Windows 11 x64 on 9 November 2026.
+
+## Passed locally
+
+- All 25 storage, metadata, database, preference, and application-identity tests.
+- TypeScript checks and production build.
+- All four desktop suites against source and the packaged Marginalia.exe: reading/migration, bookshelf, reading comfort, and branding.
+- Marginalia display name and window title; both supplied images decode and display.
+- Full bookshelf wordmark and compact reader treatment visually inspected. Long-title chapter height and minimum-window checks still pass.
+- Windows executable product name and description are Marginalia, version 0.3.1.
+- ICO contains 16, 24, 32, 48, 64, 128, and 256 pixel images.
+- Both committed source PNGs are byte-for-byte copies of the owner’s original extensionless files.
+- Original package name, installer appId, and epub-reader data directory remain stable. Test and validation data directories remain separate.
+
+## Installer and rename upgrade
+
+- Production Windows x64 installer built from the verified unpacked Marginalia executable.
+- Separate validation builds installed under EPUB Reader Validation 0.3.0 and upgraded to Marginalia Validation 0.3.1 using a stable validation-only installer ID and data folder.
+- The old executable and Start-menu shortcut were removed; the renamed executable, shortcut, and uninstaller were created.
+- The upgrade preserved imported books, saved position, bookmarks, theme, and text size.
+- Uninstall removed the app and shortcut while preserving the SQLite file byte-for-byte, managed book, and original source EPUB.
+- Test-only data was cleaned after success; the installed personal reader was untouched.
+- Read-only folder checks confirmed the personal library exists in the preserved epub-reader folder; no separate Marginalia data folder was created.
+
+The two validation installers use the current code with different names and versions. This validates installer rename mechanics and stable data routing; it is not a claim that the original production 0.3.0 installer was installed over the owner’s real library. Existing legacy migration checks remain separate.
+
+Installer: Marginalia Setup 0.3.1.exe. SHA-256: 339c1a329d869cea8392a84f7a349d5e2de51dec2b7064d47bd8981614d6d4bf.
+
+## GitHub checks
+
+Windows checks passed for the branding milestone, including all four desktop suites and dependency audit. Final documentation and installer-validation evidence are reviewed before merge.
+
+## Limits
+
+The rename adds no database schema migration. Existing JSON and SQLite migration tests continue to pass. General EPUB compatibility, accessibility, signing, Store distribution, and future features retain the limits recorded for 0.3.0 below.
+
+## Previous release: 0.3.0
 
 Checked on Windows 11 x64.
 
-## Passed locally
+### Passed locally
 
 - TypeScript checks and production build.
 - All 23 storage, metadata, database, and preference tests.
@@ -19,13 +57,13 @@ Checked on Windows 11 x64.
 - Dependency audit: no known vulnerabilities.
 - Windows x64 NSIS installer built from the verified unpacked executable.
 
-## Migration evidence
+### Migration evidence
 
 A real schema-1 SQLite fixture is upgraded to schema 2. Tests open the pre-upgrade snapshot independently and verify its original schema, theme, text size, and reading position. The upgraded database retains book dates, CFI locations, bookmarks, and appearance preferences.
 
 A deliberately incomplete old schema triggers a rollback; new columns and the version marker are not partially committed. Invalid preference values are rejected. Updated comfort settings survive restart.
 
-## Limits and follow-up
+### Limits and follow-up
 
 Tests use generated EPUBs, not a broad publisher corpus. Complex fixed-layout books, DRM, embedded-font variations, accessibility with assistive technology, and large-library performance need further review.
 

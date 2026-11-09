@@ -1,5 +1,8 @@
 const { app, BrowserWindow, ipcMain, dialog, nativeImage } = require('electron');
 const path = require('node:path');
+const metadata = require('../package.json');
+const { userDataPath } = require('./identity.cjs');
+app.setName(metadata.productName || 'Marginalia');
 const { openLibraryService } = require('./library-service.cjs');
 let win, library, exiting = false;
 
@@ -11,11 +14,9 @@ function handle(name, callback) {
 }
 // A second process must not migrate or modify the same library concurrently.
 const isTest = process.env.NODE_ENV === 'test' && process.env.EPUB_READER_TEST_DATA;
-if (isTest) {
-  const profile = path.join(isTest, 'chromium');
-  require('node:fs').mkdirSync(profile, {recursive:true});
-  app.setPath('userData', profile);
-}
+const profile = isTest ? path.join(isTest, 'chromium') : userDataPath(app.getPath('appData'), metadata);
+require('node:fs').mkdirSync(profile, {recursive:true});
+app.setPath('userData', profile);
 if (!isTest && !app.requestSingleInstanceLock()) app.quit();
 else {
   app.on('second-instance', () => { if(win) { if(win.isMinimized()) win.restore(); win.focus(); } });
@@ -42,7 +43,7 @@ else {
     handle('preferences:migrate', value => library.migratePreferences(value));
     handle('preferences:set', value => library.setPreferences(value));
     win = new BrowserWindow({
-      width:1280,height:850,minWidth:820,minHeight:600,backgroundColor:'#f5f3ed',title:'EPUB Reader',
+      width:1280,height:850,minWidth:820,minHeight:600,backgroundColor:'#f5f3ed',title:'Marginalia',icon:path.join(__dirname,'../branding/icon.png'),
       webPreferences:{ preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true },
     });
     handle('window:fullscreen:toggle',()=>{win.setFullScreen(!win.isFullScreen());});
@@ -68,7 +69,7 @@ else {
     else await win.loadFile(path.join(__dirname,'../dist/index.html'));
   }).catch(error => {
     if (isTest) console.error(error);
-    else dialog.showErrorBox('Could not open EPUB Reader', error.message + '\nYour existing library and migration backups have been preserved.');
+    else dialog.showErrorBox('Could not open Marginalia', error.message + '\nYour existing library and migration backups have been preserved.');
     app.quit();
   });
   app.on('window-all-closed', () => app.quit());
