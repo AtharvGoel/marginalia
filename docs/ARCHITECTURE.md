@@ -77,4 +77,10 @@ The standard NSIS uninstaller appears in Windows Installed apps and the installa
 
 Use a feature branch for each milestone, push logical stages, and merge after tests. Windows checks cover logic, migration, production build, desktop behavior, and dependency audit. Packaging can be triggered manually or by a version tag. Installer verification uses a distinct validation identity to avoid replacing the owner's installed app.
 
-The broader compatibility corpus, assistive-technology review, naming, personal bookshelf, watched folders, signing, and Store work remain in the roadmap.
+The broader compatibility corpus, assistive-technology review, personal bookshelf, watched folders, signing, and Store work remain in the roadmap.
+
+## Marginalia identity — 0.3.1
+
+The display name is Marginalia. The npm package name and Windows installer appId remain stable. Before requesting the single-instance lock or opening the library, the main process explicitly sets userData to the original `%APPDATA%\epub-reader` location, independent of productName. Tests use temporary profiles; installer validation overrides the data-directory metadata to a separate validation-only folder.
+
+The owner’s source PNGs are retained unchanged in branding/. The React Brand component uses CSS crops for full and compact wordmarks. Windows packaging embeds the derived multi-resolution ICO; BrowserWindow uses the supplied PNG. No database schema change accompanies the rename.

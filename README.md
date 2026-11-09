@@ -16,7 +16,7 @@ The uninstaller removes the app and its shortcuts and keeps your imported books,
 
 ## Review without reinstalling
 
-Close any running Marginalia, then open `release/win-unpacked/Marginalia.exe`. This build uses your existing library. Run the 0.3 installer when you want your installed shortcuts to launch the update.
+Close EPUB Reader or Marginalia if either is running, then open `release/win-unpacked/Marginalia.exe`. This build uses your existing library. Run the 0.3.1 installer when you want your installed shortcuts to launch the update.
 
 The first 0.3 launch upgrades saved preferences and creates a SQLite backup for existing 0.2 libraries. Use 0.3 or newer afterward; older builds cannot read the upgraded settings database.
 
