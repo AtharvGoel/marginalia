@@ -40,7 +40,7 @@ The internal application ID and `%APPDATA%\epub-reader` data directory stay stab
 Use Node.js 22.12 or newer and npm.
 
 ```powershell
-cd E:\epub_reader
+cd E:\marginalia
 npm ci
 npm run build
 npm start
