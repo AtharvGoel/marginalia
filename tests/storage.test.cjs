@@ -50,3 +50,26 @@ test('rejects traversal paths and oversize expanded archives', async () => {
  try { await assert.rejects(validateEpub(Buffer.from('fake')),/too large/); }
  finally {JSZip.loadAsync=original;}
 });
+
+
+test('accepts replacement characters in otherwise valid XML and preserves the metadata',async()=>{
+ const zip=await JSZip.loadAsync(await fixture());
+ zip.file('META-INF/container.xml',(await zip.file('META-INF/container.xml').async('string')).replace('<rootfiles>','<!-- text with \ufffd --><rootfiles>'));
+ zip.file('OEBPS/book.opf',(await zip.file('OEBPS/book.opf').async('string')).replace('A Quiet Beginning','A Quiet \ufffd Beginning'));
+ const {opf}=await validateEpub(await zip.generateAsync({type:'nodebuffer'}));
+ assert.equal(opf.getElementsByTagNameNS('*','title')[0].textContent,'A Quiet \ufffd Beginning');
+});
+
+test('replacement-character tolerance does not bypass malformed XML, entities or missing chapters',async()=>{
+ for(const change of [
+  xml=>xml.replace('version="3.0"','version=3.0'),
+  xml=>xml.replace('</metadata>','</broken>'),
+  xml=>'<!DOCTYPE package [<!ENTITY external SYSTEM "file:///private">]>'+xml,
+ ]){
+  const zip=await JSZip.loadAsync(await fixture());
+  zip.file('OEBPS/book.opf',change((await zip.file('OEBPS/book.opf').async('string')).replace('A Quiet Beginning','A Quiet \ufffd Beginning')));
+  await assert.rejects(validateEpub(await zip.generateAsync({type:'nodebuffer'})),/Invalid|Entity declarations/);
+ }
+ const zip=await JSZip.loadAsync(await fixture());zip.file('OEBPS/book.opf',(await zip.file('OEBPS/book.opf').async('string')).replace('A Quiet Beginning','A Quiet \ufffd Beginning'));zip.remove('OEBPS/one.xhtml');
+ await assert.rejects(validateEpub(await zip.generateAsync({type:'nodebuffer'})),/chapter is missing/);
+});

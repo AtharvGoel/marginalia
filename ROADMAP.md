@@ -4,7 +4,11 @@ This is the reviewable list of future scope. It lives with the source code and w
 
 Status: **Done**, **In progress**, **Planned**, or **Explore**. The order below is a proposed sequence, not a delivery-date commitment.
 
-## Current release — 0.4 passage tools
+## Current release — 0.4.1 import compatibility
+
+- **Done:** Accept otherwise valid EPUB metadata containing Unicode replacement characters, while retaining structural and safety validation.
+
+## Passage tools — 0.4
 
 - **Done:** Selection menu with four highlight colours and passage notes.
 - **Done:** Notes list, passage navigation, editing, recolouring, and independent removal.

@@ -1,8 +1,34 @@
-# Validation — 0.4.0 Passage tools
+# Validation — 0.4.1 EPUB import compatibility
 
 Checked on Windows 11 x64 on 26 November 2026.
 
 ## Passed
+
+- Reproduced the exact reported Unicode-replacement warning failure with a generated EPUB before the fix.
+- All 34 unit/data tests pass. Replacement characters are retained in parsed metadata; warnings from container XML and optional cover wrappers are handled consistently.
+- Rejection checks retain malformed XML, unquoted attributes, mismatched tags, entity declarations, unsafe archive paths, expanded-size limits, and missing chapters.
+- Imported source and managed-copy bytes remain identical to the generated source EPUB.
+- TypeScript checks and production build.
+- All six desktop suites pass against the packaged Windows executable: reading/migration, bookshelf, reading comfort, branding, annotations, and import compatibility. Source regression runs also passed each suite.
+- Compatibility desktop coverage imports the warning-producing EPUB, displays its cover, opens its first chapter, restores the library after restart, and rejects a genuinely malformed EPUB without adding it to the library.
+- Packaged XML handling matches the verified source, and packaged version is 0.4.1.
+- Windows x64 NSIS installer built from the verified package.
+
+Installer: Marginalia Setup 0.4.1.exe. SHA-256: 1537f18e73e6f2a3ea780e11e1590f2cf8a0cc442d601f4306dcf3db9a8cae9b.
+
+## Scope and limits
+
+The original reported EPUB was unavailable at the supplied path. Verification uses generated EPUBs that reproduce the exact reported warning; direct verification of that particular book remains pending its current location.
+
+Only the specific Unicode replacement-character warning is non-fatal. Other XML warnings/errors and structural validation still reject invalid books. The fix preserves existing replacement characters and does not reconstruct missing text or rewrite the source archive.
+
+No database migration, application identity, or uninstall-policy change accompanies this patch. Installation/uninstall mechanics were not repeated; existing release evidence below remains applicable. General EPUB compatibility and dictionary scope retain their earlier limits.
+
+## Previous release: 0.4.0 Passage tools
+
+Checked on Windows 11 x64 on 26 November 2026.
+
+### Passed
 
 - All 31 unit/data tests: existing storage, metadata, preference and identity coverage plus annotation validation, persistence, edit/upsert, book isolation, cascade deletion, queued writes, and web-query encoding.
 - TypeScript checks and production build.
@@ -17,7 +43,7 @@ Checked on Windows 11 x64 on 26 November 2026.
 - Windows x64 NSIS installer built from the same frozen package that passed desktop tests.
 - Packaged UI matches the verified build; version and original library directory metadata are correct.
 
-## Migration and browser handoff
+### Migration and browser handoff
 
 A schema-2 library fixture retains books, saved positions, bookmarks, and preferences while upgrading to schema 3. Its pre-upgrade snapshot is opened independently to verify the original schema and data. A failed migration rolls back both the annotation table and version marker. Restarting an upgraded library does not create repeated backups. Existing schema-1 and legacy JSON migration checks continue to pass.
 
@@ -25,7 +51,7 @@ Desktop tests replace shell.openExternal at the OS boundary and verify that the 
 
 Installer: Marginalia Setup 0.4.0.exe. SHA-256: d3f9983dc51658fd949aa0d790cffd091ecaaec1acb9e2946aa8813682661774.
 
-## Limits
+### Limits
 
 Tests use generated EPUBs, not a broad publisher corpus. Native selection spans text within a chapter frame; cross-chapter selection and in-app dictionary lookup remain future work. Passages are limited to 20,000 characters, notes to 50,000, and web queries to 2,000.
 

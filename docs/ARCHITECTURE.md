@@ -94,3 +94,9 @@ Book body structure is cleaned through the spine content hook before section ser
 Annotations are isolated by book and stored using prepared statements, a unique book/CFI key, stable UUIDs, and cascade deletion. Saves/removals share the serialized library write queue. Existing schema-1/2 databases receive one pre-upgrade snapshot of their original schema; annotation DDL and its version marker are committed transactionally. Schema 3 is refused by older releases.
 
 The trusted main-frame bridge exposes only annotation CRUD and a text-only web-search action. The main process validates and encodes a bounded query into a fixed Google HTTPS URL before shell.openExternal opens the default browser. Arbitrary caller-supplied URLs are not accepted; book content cannot directly launch browsers. The browser handoff is stubbed in desktop tests so test passages never open real tabs. Dictionary lookup remains future scope.
+
+## EPUB XML compatibility — 0.4.1
+
+Package metadata and optional cover wrappers share parseMetadataXml. It tolerates only xmldom’s specific warning about U+FFFD, which is a legal replacement character in XML text. Other warnings and errors are collected and rejected with a concise diagnostic, including fatal parser failures. Entity declarations are rejected before parsing. Existing archive size, path, document-root, spine, and chapter checks remain in place.
+
+The fix does not rewrite archives, remove replacement characters, or attempt to infer missing text. App-managed copies retain the exact imported bytes.

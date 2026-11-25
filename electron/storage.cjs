@@ -2,7 +2,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const JSZip = require('jszip');
-const { DOMParser } = require('@xmldom/xmldom');
+const { parseMetadataXml } = require('./xml.cjs');
 const MAX_SIZE = 100 * 1024 * 1024;
 function validId(id) { return typeof id === 'string' && /^[a-f0-9]{64}$/.test(id); }
 async function validateEpub(bytes) {
@@ -21,8 +21,7 @@ async function validateEpub(bytes) {
     const entry = zip.file(name);
     if (!entry || entry._data.uncompressedSize > 4 * 1024 * 1024) throw new Error('Missing or oversized EPUB package: ' + name);
     const xml = await entry.async('string');
-    if (/<!ENTITY/i.test(xml)) throw new Error('Entity declarations are not supported in EPUB package metadata.');
-    const document = new DOMParser({ onError: (_level,message) => { throw new Error('Invalid EPUB package XML: ' + message); } }).parseFromString(xml,'application/xml');
+    const document = parseMetadataXml(xml);
     if (document.documentElement.localName !== rootName) throw new Error('Invalid EPUB ' + rootName + ' document.');
     return document;
   };
