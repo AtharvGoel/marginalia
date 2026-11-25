@@ -1,8 +1,41 @@
-# Validation — 0.3.1 Marginalia
+# Validation — 0.4.0 Passage tools
+
+Checked on Windows 11 x64 on 26 November 2026.
+
+## Passed
+
+- All 31 unit/data tests: existing storage, metadata, preference and identity coverage plus annotation validation, persistence, edit/upsert, book isolation, cascade deletion, queued writes, and web-query encoding.
+- TypeScript checks and production build.
+- All five desktop suites against the packaged executable: reading/migration, bookshelf, reading comfort, branding, and passage annotations. Source regression runs also passed each suite.
+- Native mouse selection, all four highlight colours, clicking saved marks, attached-note creation/edit/cancel, note-only passages, recolouring, and navigation back from another chapter.
+- Full-range note underlines verified by position and width after reflow. Element-boundary selections are normalized to text offsets before producing CFIs.
+- Literal HTML-like note text displays as text; annotations do not execute it.
+- Highlight and note portions can be deleted independently, with marker cleanup.
+- Saved annotations restore after restart, typography and theme changes, continuous scrolling, and window resizing. Minimum-window passage actions remain inside the viewport.
+- Alt+M focuses passage actions, Escape dismisses them, and modified arrow keys do not turn pages during selection.
+- Selection menu, note editor, and saved-passages list screenshots visually inspected.
+- Windows x64 NSIS installer built from the same frozen package that passed desktop tests.
+- Packaged UI matches the verified build; version and original library directory metadata are correct.
+
+## Migration and browser handoff
+
+A schema-2 library fixture retains books, saved positions, bookmarks, and preferences while upgrading to schema 3. Its pre-upgrade snapshot is opened independently to verify the original schema and data. A failed migration rolls back both the annotation table and version marker. Restarting an upgraded library does not create repeated backups. Existing schema-1 and legacy JSON migration checks continue to pass.
+
+Desktop tests replace shell.openExternal at the OS boundary and verify that the exact selected text becomes the q parameter of a fixed Google HTTPS search URL. No real browser tabs are opened during automation. The production action uses Electron’s default-browser launcher; book frames do not receive general URL-launch access.
+
+Installer: Marginalia Setup 0.4.0.exe. SHA-256: d3f9983dc51658fd949aa0d790cffd091ecaaec1acb9e2946aa8813682661774.
+
+## Limits
+
+Tests use generated EPUBs, not a broad publisher corpus. Native selection spans text within a chapter frame; cross-chapter selection and in-app dictionary lookup remain future work. Passages are limited to 20,000 characters, notes to 50,000, and web queries to 2,000.
+
+Installer identity, data-directory pinning, and uninstall preservation settings are unchanged from 0.3.1. The isolated install/rename/uninstall mechanics below were not repeated for 0.4; database migration and packaged restart persistence were tested directly. Older releases refuse schema 3, so retain the automatic snapshot for recovery.
+
+## Previous release: 0.3.1 Marginalia
 
 Checked on Windows 11 x64 on 9 November 2026.
 
-## Passed locally
+### Passed locally
 
 - All 25 storage, metadata, database, preference, and application-identity tests.
 - TypeScript checks and production build.
@@ -14,7 +47,7 @@ Checked on Windows 11 x64 on 9 November 2026.
 - Both committed source PNGs are byte-for-byte copies of the owner’s original extensionless files.
 - Original package name, installer appId, and epub-reader data directory remain stable. Test and validation data directories remain separate.
 
-## Installer and rename upgrade
+### Installer and rename upgrade
 
 - Production Windows x64 installer built from the verified unpacked Marginalia executable.
 - Separate validation builds installed under EPUB Reader Validation 0.3.0 and upgraded to Marginalia Validation 0.3.1 using a stable validation-only installer ID and data folder.
@@ -28,11 +61,11 @@ The two validation installers use the current code with different names and vers
 
 Installer: Marginalia Setup 0.3.1.exe. SHA-256: 339c1a329d869cea8392a84f7a349d5e2de51dec2b7064d47bd8981614d6d4bf.
 
-## GitHub checks
+### GitHub checks
 
 Windows checks passed for the branding milestone, including all four desktop suites and dependency audit. Final documentation and installer-validation evidence are reviewed before merge.
 
-## Limits
+### Limits
 
 The rename adds no database schema migration. Existing JSON and SQLite migration tests continue to pass. General EPUB compatibility, accessibility, signing, Store distribution, and future features retain the limits recorded for 0.3.0 below.
 

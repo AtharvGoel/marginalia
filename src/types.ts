@@ -5,3 +5,8 @@ export type Preferences = {theme:Theme;fontSize:number;fontFamily:'book'|'serif'
 export type Match = { cfi: string; excerpt: string };
 export type ReportError = (error: unknown) => void;
 export type SaveBook = (id: string, values: Partial<Entry>) => Promise<void>;
+
+export type HighlightColor = 'yellow'|'green'|'blue'|'pink';
+export type AnnotationInput = {cfi:string;text:string;color:HighlightColor|null;note:string};
+export type Annotation = AnnotationInput & {id:string;bookId:string;createdAt:number;updatedAt:number};
+export type PassageSelection = {cfi:string;text:string;x:number;y:number};

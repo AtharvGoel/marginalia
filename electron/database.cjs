@@ -3,7 +3,8 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { validId } = require('./storage.cjs');
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
+const {validateAnnotation,validateAnnotationId} = require('./annotations.cjs');
 const {validatePreferences} = require('./preferences.cjs');
 function validateEntry(book) {
   if (!book || !validId(book.id) || typeof book.title !== 'string' || typeof book.author !== 'string' || !Number.isFinite(book.added)) throw new Error('Invalid book in saved library.');
@@ -31,6 +32,12 @@ async function openLibrary(root) {
     db.exec('PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000;');
     const version = db.prepare('PRAGMA user_version').get().user_version;
     if (version > SCHEMA_VERSION) throw new Error('This library was created by a newer app. Install that version to open it.');
+    if(version>0 && version<SCHEMA_VERSION){
+      const directory=path.join(root,'backups');
+      await fs.mkdir(directory,{recursive:true});
+      const snapshot=path.join(directory,'library-schema-'+version+'-'+Date.now()+'-'+crypto.randomUUID()+'.sqlite');
+      db.prepare('VACUUM INTO ?').run(snapshot);
+    }
     // DDL and legacy data are committed together. Failed migration can be retried.
     if (version === 0) {
       let legacy;
@@ -72,12 +79,6 @@ async function openLibrary(root) {
       });
     }
     if(version<2){
-      if(version===1){
-        const directory=path.join(root,'backups');
-        await fs.mkdir(directory,{recursive:true});
-        const snapshot=path.join(directory,'library-v0.2-'+Date.now()+'-'+crypto.randomUUID()+'.sqlite');
-        db.prepare('VACUUM INTO ?').run(snapshot);
-      }
       transaction(db,()=>{
         db.exec(`
           ALTER TABLE preferences ADD COLUMN font_family TEXT NOT NULL DEFAULT 'book' CHECK(font_family IN ('book','serif','sans','mono'));
@@ -90,6 +91,21 @@ async function openLibrary(root) {
           PRAGMA user_version = 2;
         `);
         db.prepare('INSERT INTO migration_history VALUES(2,?,?)').run(Date.now(),'reading comfort preferences');
+      });
+    }
+    if(version<3){
+      transaction(db,()=>{
+        db.exec(`
+          CREATE TABLE annotations (
+            id TEXT PRIMARY KEY, book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+            cfi TEXT NOT NULL, text TEXT NOT NULL, color TEXT CHECK(color IS NULL OR color IN ('yellow','green','blue','pink')),
+            note TEXT NOT NULL DEFAULT '', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL,
+            UNIQUE(book_id,cfi), CHECK(color IS NOT NULL OR length(trim(note))>0)
+          );
+          CREATE INDEX annotations_book ON annotations(book_id,created_at);
+          PRAGMA user_version = 3;
+        `);
+        db.prepare('INSERT INTO migration_history VALUES(3,?,?)').run(Date.now(),'passage highlights and notes');
       });
     }
     // Use WAL for small durable updates, and checkpoint cleanly on exit.
@@ -146,6 +162,22 @@ class LibraryDatabase {
     return this.get(id);
   }
   remove(id) { this.get(id); this.db.prepare('DELETE FROM books WHERE id=?').run(id); }
+  listAnnotations(bookId) {
+    this.get(bookId);
+    return this.db.prepare('SELECT id,book_id AS bookId,cfi,text,color,note,created_at AS createdAt,updated_at AS updatedAt FROM annotations WHERE book_id=? ORDER BY created_at,id').all(bookId).map(row=>({...row}));
+  }
+  saveAnnotation(bookId,value) {
+    this.get(bookId);
+    const a=validateAnnotation(value),now=Date.now();
+    this.db.prepare(`INSERT INTO annotations(id,book_id,cfi,text,color,note,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)
+      ON CONFLICT(book_id,cfi) DO UPDATE SET text=excluded.text,color=excluded.color,note=excluded.note,updated_at=excluded.updated_at`).run(crypto.randomUUID(),bookId,a.cfi,a.text,a.color,a.note,now,now);
+    return this.listAnnotations(bookId);
+  }
+  removeAnnotation(bookId,id) {
+    this.get(bookId);validateAnnotationId(id);
+    if(!this.db.prepare('DELETE FROM annotations WHERE book_id=? AND id=?').run(bookId,id).changes)throw new Error('Annotation not found.');
+    return this.listAnnotations(bookId);
+  }
   getPreferences() {
     const row=this.db.prepare('SELECT theme,font_size AS fontSize,font_family AS fontFamily,line_height AS lineHeight,margin,reading_width AS readingWidth,layout,sidebar_width AS sidebarWidth,sidebar_collapsed AS sidebarCollapsed FROM preferences WHERE id=1').get();
     return row?{...row,sidebarCollapsed:!!row.sidebarCollapsed}:null;

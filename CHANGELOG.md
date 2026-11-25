@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.0 — Passage highlights and notes
+
+- Add a passage-selection menu with yellow, green, blue, and pink highlights.
+- Add, edit, and delete notes attached to passages, with optional colour highlights.
+- Browse saved passages in Notes and jump back to their book locations.
+- Open selected text as a Google search in the device’s default browser through a restricted desktop action.
+- Persist annotations in SQLite schema 3, with a pre-upgrade snapshot and transactional migration.
+- Restore marks after reflow and restart; clean chapter structure before generating and restoring passage anchors.
+- Support keyboard selection and Alt+M access to the passage menu.
+- Keep the in-app dictionary on the roadmap.
+
+
 ## 0.3.1 — Marginalia
 
 - Rename the app to Marginalia and integrate the owner’s supplied emblem and stylized name.

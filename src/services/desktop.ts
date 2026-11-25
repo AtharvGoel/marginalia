@@ -1,4 +1,4 @@
-import type { Entry, Preferences } from '../types';
+import type { Entry, Preferences, Annotation, AnnotationInput } from '../types';
 export interface DesktopAPI {
   toggleFullscreen(): Promise<void>;
   getFullscreen(): Promise<boolean>;
@@ -7,6 +7,10 @@ export interface DesktopAPI {
   getPreferences(): Promise<Preferences | null>;
   migratePreferences(value: Preferences): Promise<Preferences>;
   setPreferences(value: Preferences): Promise<Preferences>;
+  listAnnotations(bookId:string): Promise<Annotation[]>;
+  saveAnnotation(bookId:string,value:AnnotationInput): Promise<Annotation[]>;
+  removeAnnotation(bookId:string,id:string): Promise<Annotation[]>;
+  searchWeb(text:string): Promise<void>;
   list(): Promise<Entry[]>;
   importBooks(): Promise<Entry[]>;
   inspectBook(id: string): Promise<{entry: Entry; cover: string | null}>;
