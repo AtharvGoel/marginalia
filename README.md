@@ -18,7 +18,7 @@ The uninstaller removes the app and its shortcuts and keeps your imported books,
 
 Close EPUB Reader or Marginalia if either is running, then open `release/win-unpacked/Marginalia.exe`. This build uses your existing library. Run the 0.4.0 installer when you want your installed shortcuts to launch the update.
 
-The first 0.3 launch upgrades saved preferences and creates a SQLite backup for existing 0.2 libraries. Use 0.3 or newer afterward; older builds cannot read the upgraded settings database.
+The first 0.4 launch reuses your library and creates a SQLite backup before upgrading an older database. Use 0.4 or newer afterward; older builds cannot read the upgraded database.
 
 ## Highlights, notes, and web search
 
@@ -111,7 +111,7 @@ New imports use the EPUB's embedded title and author immediately, regardless of 
 The library remains in `%APPDATA%\epub-reader`, including after the Marginalia rename:
 - `books/`: app-managed EPUB copies.
 - `covers/`: disposable cached thumbnails and embedded presentation metadata.
-- `library.sqlite`: SQLite metadata and reading preferences.
+- `library.sqlite`: SQLite metadata, reading preferences, highlights, and notes.
 - `backups/`: automatic legacy JSON backups and pre-upgrade SQLite snapshots.
 - `library.json`: retained 0.1 source, if one existed.
 
