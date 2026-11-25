@@ -139,9 +139,20 @@ export class EpubSession{
    const selection=content.window.getSelection(),frame=this.frameFor(content);
    if(!selection?.rangeCount||selection.isCollapsed||!frame)return;
    const text=selection.toString();if(!text.trim())return;
+   const range=selection.getRangeAt(0).cloneRange();
+   // Keyboard/select-all ranges can end on elements. Anchor to text offsets so
+   // the EPUB engine restores the full passage rather than a single character.
+   if(range.startContainer.nodeType!==3||range.endContainer.nodeType!==3){
+    const ancestor=range.commonAncestorContainer;
+    const walker=content.document.createTreeWalker(ancestor,4);
+    const nodes:Text[]=[];let node:Node|null;
+    while((node=walker.nextNode()))if(node.textContent?.length&&range.intersectsNode(node))nodes.push(node as Text);
+    if(nodes.length){if(range.startContainer.nodeType!==3)range.setStart(nodes[0],0);if(range.endContainer.nodeType!==3)range.setEnd(nodes[nodes.length-1],nodes[nodes.length-1].length);}
+   }
+   cfi=content.cfiFromRange(range);
    if(text.length>20000){this.callbacks.error(new Error('Select a passage of up to 20,000 characters.'));return;}
    const frameBox=frame.getBoundingClientRect();
-   const box=Array.from(selection.getRangeAt(0).getClientRects()).find(rect=>rect.bottom>0&&rect.top<frame.clientHeight&&rect.right>0&&rect.left<frame.clientWidth);
+   const box=Array.from(range.getClientRects()).find(rect=>rect.bottom>0&&rect.top<frame.clientHeight&&rect.right>0&&rect.left<frame.clientWidth);
    if(!box)return;
    this.callbacks.selected({cfi,text,x:frameBox.left+Math.max(0,box.left),y:frameBox.top+box.bottom});
   });

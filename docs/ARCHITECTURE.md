@@ -1,4 +1,4 @@
-# Architecture — 0.3
+# Architecture — 0.4
 
 See [the roadmap](../ROADMAP.md) for feature scope and [validation](VALIDATION.md) for evidence and limits.
 
@@ -10,7 +10,7 @@ Electron remains the desktop shell. React/TypeScript renders local assets built 
 - `src/features/library/`: library UI, importing, selection, and removal.
 - `src/features/reader/`: reading view and session lifecycle hook.
 - `src/features/settings/`: preference loading/saving and reader toolbar.
-- `src/components/Sidebar.tsx`: chapter, bookmark, and search navigation.
+- `src/components/Sidebar.tsx`: chapter, bookmark, search, and saved-passage navigation.
 - `src/services/epub.ts`: replaceable epub.js adapter for opening, navigation, layout, search, and cleanup.
 - `src/services/desktop.ts`: typed desktop bridge.
 
@@ -31,7 +31,7 @@ Book scripts are disabled. The book iframe is sandboxed; content hooks remove ac
 
 SQLite comes from Electron's bundled Node runtime (`node:sqlite`); no separately rebuilt native SQLite dependency is needed. Development and tests require Node 22.12 or newer.
 
-Database schema version 2 uses books, bookmarks, preferences, and migration-history tables. The reading preferences include font, line height, margins, reading width, layout, sidebar width, and collapse state. Shared defaults are bundled for both processes. Foreign keys cascade bookmarks when a book is removed. Writes use prepared statements, validation, transactions where multiple statements are needed, WAL, and full synchronization. Shutdown drains the write queue and checkpoints the database.
+Database schema version 3 uses books, bookmarks, preferences, annotations, and migration-history tables. The reading preferences include font, line height, margins, reading width, layout, sidebar width, and collapse state. Shared defaults are bundled for both processes. Foreign keys cascade bookmarks and annotations when a book is removed. Writes use prepared statements, validation, transactions where multiple statements are needed, WAL, and full synchronization. Shutdown drains the write queue and checkpoints the database.
 
 On the first 0.2 launch:
 1. Validate the old version-1 `library.json`.
@@ -84,3 +84,13 @@ The broader compatibility corpus, assistive-technology review, personal bookshel
 The display name is Marginalia. The npm package name and Windows installer appId remain stable. Before requesting the single-instance lock or opening the library, the main process explicitly sets userData to the original `%APPDATA%\epub-reader` location, independent of productName. Tests use temporary profiles; installer validation overrides the data-directory metadata to a separate validation-only folder.
 
 The owner’s source PNGs are retained unchanged in branding/. The React Brand component uses CSS crops for full and compact wordmarks. Windows packaging embeds the derived multi-resolution ICO; BrowserWindow uses the supplied PNG. No database schema change accompanies the rename.
+
+## Passage annotations — 0.4
+
+The EPUB adapter normalizes selected ranges to text-node boundaries and produces range CFIs plus plain selected text and viewport coordinates. The React passage menu offers four highlight colours, an attached note editor, and web search. The Notes sidebar lists saved passages and supports navigation and editing. Highlight and note portions can be removed independently; note-only passages use an underline. Mark rendering is rebuilt with each rendition and updated after writes.
+
+Book body structure is cleaned through the spine content hook before section serialization and annotation attachment. Resource-base handling stays in place until display. This keeps newly generated and restored CFIs on the same sanitized tree. Resize work participates in the reader’s pending state; changing layout dismisses transient passage actions.
+
+Annotations are isolated by book and stored using prepared statements, a unique book/CFI key, stable UUIDs, and cascade deletion. Saves/removals share the serialized library write queue. Existing schema-1/2 databases receive one pre-upgrade snapshot of their original schema; annotation DDL and its version marker are committed transactionally. Schema 3 is refused by older releases.
+
+The trusted main-frame bridge exposes only annotation CRUD and a text-only web-search action. The main process validates and encodes a bounded query into a fixed Google HTTPS URL before shell.openExternal opens the default browser. Arbitrary caller-supplied URLs are not accepted; book content cannot directly launch browsers. The browser handoff is stubbed in desktop tests so test passages never open real tabs. Dictionary lookup remains future scope.
