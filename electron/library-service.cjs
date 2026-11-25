@@ -71,6 +71,9 @@ async function openLibraryService(root, {thumbnail = (bytes,mime)=>'data:'+mime+
       database.remove(id);
       return database.list();
     }),
+    listAnnotations: id => database.listAnnotations(id),
+    saveAnnotation: (id,value) => mutate(() => database.saveAnnotation(id,value)),
+    removeAnnotation: (bookId,id) => mutate(() => database.removeAnnotation(bookId,id)),
     getPreferences: () => database.getPreferences(),
     setPreferences: value => mutate(() => database.setPreferences(value)),
     migratePreferences: value => mutate(() => database.migratePreferences(value)),

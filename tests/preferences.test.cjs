@@ -4,7 +4,7 @@ const fs=require('node:fs/promises');
 const path=require('node:path');
 const os=require('node:os');
 const {DatabaseSync}=require('node:sqlite');
-const {openLibrary}=require('../electron/database.cjs');
+const {openLibrary,SCHEMA_VERSION}=require('../electron/database.cjs');
 const {defaults,validatePreferences}=require('../electron/preferences.cjs');
 async function temporary(work){const root=await fs.mkdtemp(path.join(os.tmpdir(),'epub-preferences-'));try{await work(root);}finally{await fs.rm(root,{recursive:true,force:true});}}
 function versionOne(root,history=true){
@@ -18,7 +18,7 @@ function versionOne(root,history=true){
 test('upgrades a real version-1 database with a readable pre-upgrade snapshot',()=>temporary(async root=>{
  versionOne(root);
  const db=await openLibrary(root);
- assert.equal(db.db.prepare('PRAGMA user_version').get().user_version,2);
+ assert.equal(db.db.prepare('PRAGMA user_version').get().user_version,SCHEMA_VERSION);
  assert.deepEqual(db.getPreferences(),{...defaults,theme:'dark',fontSize:23});
  const book=db.list()[0];assert.equal(book.location,'saved CFI');assert.equal(book.lastOpened,456);assert.deepEqual(book.bookmarks,['saved bookmark']);
  const backup=(await fs.readdir(path.join(root,'backups'))).find(name=>name.endsWith('.sqlite'));

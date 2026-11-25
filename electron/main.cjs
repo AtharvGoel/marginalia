@@ -1,6 +1,7 @@
-const { app, BrowserWindow, ipcMain, dialog, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, nativeImage, shell } = require('electron');
 const path = require('node:path');
 const metadata = require('../package.json');
+const { webSearchUrl } = require('./annotations.cjs');
 const { userDataPath } = require('./identity.cjs');
 app.setName(metadata.productName || 'Marginalia');
 const { openLibraryService } = require('./library-service.cjs');
@@ -39,6 +40,10 @@ else {
     handle('book:read', id => library.read(id));
     handle('book:update', (id,value) => library.update(id,value));
     handle('book:remove', id => library.remove(id));
+    handle('annotations:list', id => library.listAnnotations(id));
+    handle('annotations:save', (id,value) => library.saveAnnotation(id,value));
+    handle('annotations:remove', (bookId,id) => library.removeAnnotation(bookId,id));
+    handle('selection:search-web', text => shell.openExternal(webSearchUrl(text)));
     handle('preferences:get', () => library.getPreferences());
     handle('preferences:migrate', value => library.migratePreferences(value));
     handle('preferences:set', value => library.setPreferences(value));
@@ -78,7 +83,7 @@ else {
     event.preventDefault();
     // Reject new IPC writes while waiting for existing work to finish.
 
-    for (const channel of ['library:list','book:import','book:read','book:update','book:remove','book:inspect','window:fullscreen:toggle','window:fullscreen:get','window:fullscreen:set','preferences:get','preferences:migrate','preferences:set']) ipcMain.removeHandler(channel);
+    for (const channel of ['annotations:list','annotations:save','annotations:remove','selection:search-web','library:list','book:import','book:read','book:update','book:remove','book:inspect','window:fullscreen:toggle','window:fullscreen:get','window:fullscreen:set','preferences:get','preferences:migrate','preferences:set']) ipcMain.removeHandler(channel);
     Promise.resolve(library?.close()).catch(error => console.error('Could not close library:',error)).finally(() => {exiting=true;app.quit();});
   });
 }

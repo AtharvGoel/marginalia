@@ -1,4 +1,4 @@
-# Marginalia — 0.3.1
+# Marginalia — 0.4.0
 
 An offline Windows desktop reader for DRM-free, reflowable EPUB books.
 
@@ -6,7 +6,7 @@ An offline Windows desktop reader for DRM-free, reflowable EPUB books.
 
 ## Install or uninstall
 
-Open `release/Marginalia Setup 0.3.1.exe` to install on Windows 11 x64. Packaged apps do not need Node.js installed.
+Open `release/Marginalia Setup 0.4.0.exe` to install on Windows 11 x64. Packaged apps do not need Node.js installed.
 
 To uninstall:
 - Open **Windows Settings → Apps → Installed apps → Marginalia → Uninstall**, or
@@ -16,9 +16,23 @@ The uninstaller removes the app and its shortcuts and keeps your imported books,
 
 ## Review without reinstalling
 
-Close EPUB Reader or Marginalia if either is running, then open `release/win-unpacked/Marginalia.exe`. This build uses your existing library. Run the 0.3.1 installer when you want your installed shortcuts to launch the update.
+Close EPUB Reader or Marginalia if either is running, then open `release/win-unpacked/Marginalia.exe`. This build uses your existing library. Run the 0.4.0 installer when you want your installed shortcuts to launch the update.
 
 The first 0.3 launch upgrades saved preferences and creates a SQLite backup for existing 0.2 libraries. Use 0.3 or newer afterward; older builds cannot read the upgraded settings database.
+
+## Highlights, notes, and web search
+
+Select a passage in a book to open **Passage actions**:
+
+- Choose yellow, green, blue, or pink to highlight it.
+- Choose **Add note**, write your thought, and press **Save note**. A note can exist without a coloured highlight; those passages are underlined.
+- Choose **Search on Web** to open a Google search for the selected text in your default browser. Only this explicit action sends the passage online.
+- Click a saved highlight/underline or use the sidebar’s **Notes** tab to edit it. Highlights and notes can be removed independently. **Go to passage** returns to the original text.
+- **Alt+M** focuses the passage actions; Escape closes them.
+
+Annotations are saved locally and restored after restarting, resizing, changing fonts/themes, or switching between pages and continuous scrolling. Passage selections are limited to 20,000 characters, notes to 50,000, and web searches to 2,000. Native selection is within a chapter frame; cross-chapter selection is not provided. An in-app dictionary is still planned.
+
+The first 0.4 launch takes a pre-upgrade SQLite snapshot and adds annotation storage. Keep that backup; use 0.4 or later afterward because older versions cannot read the new schema. The existing library folder stays the same.
 
 ## Name and artwork
 
@@ -59,6 +73,13 @@ Use `npm run dev` for development. Your existing system Node was left unchanged;
 
 New imports use the EPUB's embedded title and author immediately, regardless of the filename. Embedded artwork appears on the bookshelf, with the title kept below it. Surname-first author entries such as "Austen, Jane" display as "Jane Austen"; original metadata is retained. Older entries refresh as their bookshelf cards load. Missing, damaged, unsupported, or vector-only artwork uses the text-cover fallback. Complex fixed-layout books, DRM-protected EPUBs, PDFs, and audio/video are outside current support.
 
+## What's new in 0.4
+
+- Passage selection actions for coloured highlights, attached notes, and default-browser web searches.
+- Saved-passages list with navigation, editing, recolouring, and independent note/highlight removal.
+- SQLite schema 3 with pre-upgrade snapshots and transactional migration.
+- Stable passage anchors through content cleaning, reflow, and restart.
+
 ## What's new in 0.3
 
 - Compact, collapsible and resizable chapter navigation with a current-chapter marker.
@@ -96,7 +117,7 @@ The library remains in `%APPDATA%\epub-reader`, including after the Marginalia r
 
 Close the app before manually backing up the complete data directory. Do not delete SQLite WAL/SHM files while it is running.
 
-The migration keeps original JSON and imported EPUB copies. If migration fails, the app stops with an error rather than replacing saved data. Avoid downgrading an upgraded library. Version 0.1 uses an old JSON snapshot; 0.2.x refuses the newer schema used by 0.3. Keep migration backups for recovery.
+The migration keeps original JSON and imported EPUB copies. If migration fails, the app stops with an error rather than replacing saved data. Avoid downgrading an upgraded library. Version 0.1 uses an old JSON snapshot; 0.2.x and 0.3.x refuse the newer schema used by 0.4. Keep migration backups for recovery.
 
 Imports are limited to 100 MB compressed and 300 MB expanded. No accounts, analytics, or cloud services are used.
 

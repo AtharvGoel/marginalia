@@ -1,12 +1,22 @@
 import ePub, { Book, Rendition, EpubCFI, type Contents } from 'epubjs';
+import highlightColors from '../../shared/annotation-colors.json';
 import type Section from 'epubjs/types/section';
-import type { Chapter,Entry,Match,Preferences } from '../types';
+import type { Annotation,Chapter,Entry,Match,PassageSelection,Preferences } from '../types';
 export const palettes={
  light:{background:'#fffdf8',color:'#292d28'},sepia:{background:'#f2e6cc',color:'#453b2d'},dark:{background:'#222923',color:'#e4e8df'},
 };
 const fonts={serif:'Georgia, "Times New Roman", serif',sans:'"Segoe UI", Arial, sans-serif',mono:'Consolas, "Courier New", monospace'};
 const flatten=(items:Chapter[],depth=0):Chapter[]=>items.flatMap(item=>[{...item,depth},...flatten(item.subitems||[],depth+1)]);
-type Callbacks={chapters(value:Chapter[]):void;relocated(cfi:string,chapter:string,href:string):void;error(error:unknown):void;key(key:string):void};
+// Clean body structure before serializing a section so saved CFIs resolve against
+// the same tree when annotations attach. Keep the resource base until display.
+function sanitizeDocument(document:Document,keepBase=false){
+ document.querySelectorAll('script,iframe,object,embed,form,meta[http-equiv]'+(keepBase?'':',base')).forEach(el=>el.remove());
+ document.querySelectorAll('*').forEach(el=>Array.from(el.attributes).forEach(attr=>{
+  if(/^on/i.test(attr.name)||/^(javascript|https?|ftp):/i.test(attr.value.trim())&&['href','src','xlink:href','action'].includes(attr.name))el.removeAttribute(attr.name);
+ }));
+}
+
+type Callbacks={chapters(value:Chapter[]):void;relocated(cfi:string,chapter:string,href:string):void;error(error:unknown):void;key(key:string):void;selected(value:PassageSelection|null):void;annotation(id:string,x:number,y:number):void};
 export class EpubSession{
  private book?:Book;
  private rendition?:Rendition;
@@ -19,6 +29,28 @@ export class EpubSession{
  private lastCfi?:string;
  private acceptLocations=false;
  private activate=()=>{this.acceptLocations=true;};
+ private annotationRecords:Annotation[]=[];
+ private renderedAnnotations=new Map<string,Annotation>();
+ private frameFor(content:Contents){return Array.from(this.host?.querySelectorAll<HTMLIFrameElement>('iframe')||[]).find(frame=>frame.contentDocument===content.document);}
+ clearSelection(){for(const content of (this.rendition?.getContents()||[]) as unknown as Contents[])content.window.getSelection()?.removeAllRanges();}
+ setAnnotations(value:Annotation[]){this.annotationRecords=value;this.applyAnnotations();}
+ private applyAnnotations(){
+  const r=this.rendition;if(!r)return;
+  const target=new Map(this.annotationRecords.map(item=>[item.id,item]));
+  for(const [id,item] of this.renderedAnnotations){
+   const next=target.get(id);
+   if(!next||next.color!==item.color||next.note!==item.note||next.cfi!==item.cfi){r.annotations.remove(item.cfi,item.color?'highlight':'underline');this.renderedAnnotations.delete(id);}
+  }
+  for(const item of this.annotationRecords){
+   if(this.renderedAnnotations.has(item.id))continue;
+   const clicked=(event:MouseEvent)=>{if(this.disposed)return;this.callbacks.annotation(item.id,event.clientX,event.clientY);};
+   try{
+    if(item.color)r.annotations.highlight(item.cfi,{annotationId:item.id},clicked,'marginalia-highlight',{fill:highlightColors[item.color],'fill-opacity':'0.42','mix-blend-mode':this.preferences?.theme==='dark'?'screen':'multiply'});
+    else r.annotations.underline(item.cfi,{annotationId:item.id},clicked,'marginalia-note',{stroke:this.preferences?.theme==='dark'?'#b8dba5':'#486d47','stroke-opacity':'1','stroke-width':'2','mix-blend-mode':'normal'});
+    this.renderedAnnotations.set(item.id,item);
+   }catch{this.callbacks.error(new Error('A saved passage could not be marked in this book. You can still find it in Notes.'));}
+  }
+ }
  private fingerprint='';
  private operations=Promise.resolve();
  constructor(private callbacks:Callbacks){}
@@ -29,6 +61,7 @@ export class EpubSession{
  }
  async open(bytes:Uint8Array,host:HTMLElement,entry:Entry,preferences:Preferences){
   const book=ePub(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength)as ArrayBuffer);
+  book.spine.hooks.content.register((document:Document)=>sanitizeDocument(document,true));
   this.book=book;this.host=host;this.lastCfi=entry.location;this.preferences=preferences;
   host.addEventListener('wheel',this.activate,{capture:true,passive:true});
   host.addEventListener('pointerdown',this.activate,true);
@@ -81,6 +114,8 @@ export class EpubSession{
   this.acceptLocations=false;
   const old=this.rendition;
   this.rendition=undefined;
+  this.callbacks.selected(null);
+  this.renderedAnnotations.clear();
   old?.destroy();
   host.replaceChildren();
   const r=book.renderTo(host,{width,height,manager:p.layout==='scroll'?'continuous':'default',flow:p.layout==='scroll'?'scrolled':'paginated',spread:'none',allowScriptedContent:false});
@@ -92,24 +127,36 @@ export class EpubSession{
    a:{color:p.theme==='dark'?'#b6d7ad':'#3b6747'},
   });
   r.themes.fontSize(p.fontSize+'px');
-  r.hooks.content.register((content:{document:Document})=>{
+  r.hooks.content.register((content:Contents)=>{
    content.document.addEventListener('wheel',this.activate,{capture:true,passive:true});
    content.document.addEventListener('pointerdown',this.activate,true);
    content.document.addEventListener('keydown',this.activate,true);
-   content.document.addEventListener('keydown',event=>{if((event.key==='F11'||event.key==='Escape')&&!event.repeat){event.preventDefault();this.callbacks.key(event.key);}},true);
-   content.document.querySelectorAll('script,iframe,object,embed,form,base,meta[http-equiv]').forEach(el=>el.remove());
-   content.document.querySelectorAll('*').forEach(el=>Array.from(el.attributes).forEach(attr=>{
-    if(/^on/i.test(attr.name)||/^(javascript|https?|ftp):/i.test(attr.value.trim())&&['href','src','xlink:href','action'].includes(attr.name))el.removeAttribute(attr.name);
-   }));
+   content.document.addEventListener('keydown',event=>{if(event.altKey&&event.key.toLowerCase()==='m'){event.preventDefault();this.callbacks.key('annotation-menu');}if((event.key==='F11'||event.key==='Escape')&&!event.repeat){event.preventDefault();this.callbacks.key(event.key);}},true);
+   sanitizeDocument(content.document);
   });
+  r.on('selected',(cfi:string,content:Contents)=>{
+   if(this.disposed||this.rendition!==r)return;
+   const selection=content.window.getSelection(),frame=this.frameFor(content);
+   if(!selection?.rangeCount||selection.isCollapsed||!frame)return;
+   const text=selection.toString();if(!text.trim())return;
+   if(text.length>20000){this.callbacks.error(new Error('Select a passage of up to 20,000 characters.'));return;}
+   const frameBox=frame.getBoundingClientRect();
+   const box=Array.from(selection.getRangeAt(0).getClientRects()).find(rect=>rect.bottom>0&&rect.top<frame.clientHeight&&rect.right>0&&rect.left<frame.clientWidth);
+   if(!box)return;
+   this.callbacks.selected({cfi,text,x:frameBox.left+Math.max(0,box.left),y:frameBox.top+box.bottom});
+  });
+  this.applyAnnotations();
   r.on('relocated',(location:{start:{cfi:string;href:string}})=>{
    if(this.disposed||this.rendition!==r)return;
+   if(this.acceptLocations)this.callbacks.selected(null);
    if(this.acceptLocations||!this.lastCfi)this.lastCfi=location.start.cfi;
    const currentHref=this.book?.spine.get(this.lastCfi)?.href||location.start.href;
    const found=this.toc.find(chapter=>chapter.href.split('#')[0]===currentHref.split('#')[0]);
    this.callbacks.relocated(this.lastCfi,found?.label.trim()||'Reading',found?.href||currentHref);
   });
   r.on('keyup',(event:KeyboardEvent)=>{
+   const selected=(event.target as Node|null)?.ownerDocument?.getSelection();
+   if(event.shiftKey||event.ctrlKey||event.altKey||event.metaKey||selected&&!selected.isCollapsed)return;
    if(event.key==='ArrowRight')void this.next().catch(this.callbacks.error);
    if(event.key==='ArrowLeft')void this.previous().catch(this.callbacks.error);
   });
@@ -122,9 +169,9 @@ export class EpubSession{
   await this.alignScroll(r,this.lastCfi);
   if(!this.disposed&&this.rendition===r){this.fingerprint=key;host.dataset.layout=p.layout;}
  }
- next(){return this.enqueue(async()=>{this.acceptLocations=true;await this.rendition?.next();});}
- previous(){return this.enqueue(async()=>{this.acceptLocations=true;await this.rendition?.prev();});}
- navigate(target:string){return this.enqueue(async()=>{
+ next(){this.callbacks.selected(null);return this.enqueue(async()=>{this.acceptLocations=true;await this.rendition?.next();});}
+ previous(){this.callbacks.selected(null);return this.enqueue(async()=>{this.acceptLocations=true;await this.rendition?.prev();});}
+ navigate(target:string){this.callbacks.selected(null);return this.enqueue(async()=>{
   const book=this.book,r=this.rendition;
   if(!book||!r)return;
   let destination=target;

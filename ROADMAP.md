@@ -4,7 +4,15 @@ This is the reviewable list of future scope. It lives with the source code and w
 
 Status: **Done**, **In progress**, **Planned**, or **Explore**. The order below is a proposed sequence, not a delivery-date commitment.
 
-## Current release — 0.3.1 Marginalia
+## Current release — 0.4 passage tools
+
+- **Done:** Selection menu with four highlight colours and passage notes.
+- **Done:** Notes list, passage navigation, editing, recolouring, and independent removal.
+- **Done:** Explicit Search on Web action in the default browser.
+- **Done:** Local annotation storage, schema-upgrade backup, restart and reflow checks.
+- **Planned:** In-app dictionary for selected words and terms.
+
+## Branding — 0.3.1 Marginalia
 
 - **Done:** Owner-selected name, supplied emblem and stylized wordmark.
 - **Done:** Windows icon and consistent installer, shortcut, window and uninstall labels.
@@ -95,14 +103,14 @@ Acceptance: a user can search or browse Project Gutenberg within the app, inspec
 
 ## Advanced reading tools — Planned
 
-### Passage selection menu — Planned (user requested)
+### Passage selection menu — Implemented in 0.4; dictionary planned
 
 Selecting text should show a compact menu beside the passage:
 
-- **Highlight:** choose one of several colours; change the colour or remove the highlight later.
-- **Add note:** write a note attached to the selected passage; reopen, edit, or delete it later.
-- **Search the web:** send the selected text as a search query to the device's default browser, avoiding manual copy/paste.
-- **Look up:** when the selection is a single word, show its meaning in an in-app dictionary panel.
+- **Done (0.4) — Highlight:** choose one of several colours; change the colour or remove the highlight later.
+- **Done (0.4) — Add note:** write a note attached to the selected passage; reopen, edit, or delete it later.
+- **Done (0.4) — Search on Web:** send the selected text as a search query to the device's default browser, avoiding manual copy/paste.
+- **Planned — Look up:** when the selection is a single word, show its meaning in an in-app dictionary panel.
 
 Highlights and notes:
 - Anchor selections with EPUB CFIs and retain the selected text as context.
@@ -117,7 +125,7 @@ Dictionary and browser behaviour:
 - Encode the passage safely into a search URL and open it through a restricted desktop action, rather than giving book content general browser-launch access.
 - Handle punctuation, hyphenated words, and selections spanning page boundaries; show a useful message when no definition is found.
 
-Acceptance: selecting a passage offers multiple highlight colours, a note action, and web search; selecting a single word also offers **Look up**. Highlights and notes remain attached after reflow and restart, web search opens the selected text in the default browser, and dictionary results appear without leaving the app.
+Implemented: selecting a passage offers multiple highlight colours, a note action, and web search. Remaining acceptance: selecting a single word also offers **Look up**. Highlights and notes remain attached after reflow and restart, web search opens the selected text in the default browser, and dictionary results appear without leaving the app.
 
 ### Other advanced tools — Planned
 

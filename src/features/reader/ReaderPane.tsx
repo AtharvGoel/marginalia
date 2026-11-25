@@ -1,3 +1,4 @@
+import {PassageMenu} from './PassageMenu';
 import type{Entry,Preferences,SaveBook}from'../../types';
 import{palettes}from'../../services/epub';
 import{ReaderToolbar}from'../settings/ReaderToolbar';
@@ -10,6 +11,7 @@ export function ReaderPane({entry,reader,preferences,setPreferences,save,fullscr
    {reader.busy&&<div className="loading" role="status">Preparing your page…</div>}
    <div className="reader-page" style={{maxWidth:preferences.readingWidth}}><div ref={reader.host} className="epub-host"/></div>
   </div>
+  {reader.annotations.selection&&<PassageMenu key={reader.annotations.selection.cfi} actions={reader.annotations}/>}
   <footer className="reader-footer"><button onClick={reader.previous}>← Previous</button><span>{reader.chapter||'Use the arrow keys to turn pages'}</span><button onClick={reader.next}>Next →</button></footer>
  </>;
 }
