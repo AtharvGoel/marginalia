@@ -1,4 +1,4 @@
-# Marginalia — 0.4.0
+# Marginalia — 0.4.1
 
 An offline Windows desktop reader for DRM-free, reflowable EPUB books.
 
@@ -6,7 +6,7 @@ An offline Windows desktop reader for DRM-free, reflowable EPUB books.
 
 ## Install or uninstall
 
-Open `release/Marginalia Setup 0.4.0.exe` to install on Windows 11 x64. Packaged apps do not need Node.js installed.
+Open `release/Marginalia Setup 0.4.1.exe` to install on Windows 11 x64. Packaged apps do not need Node.js installed.
 
 To uninstall:
 - Open **Windows Settings → Apps → Installed apps → Marginalia → Uninstall**, or
@@ -16,7 +16,7 @@ The uninstaller removes the app and its shortcuts and keeps your imported books,
 
 ## Review without reinstalling
 
-Close EPUB Reader or Marginalia if either is running, then open `release/win-unpacked/Marginalia.exe`. This build uses your existing library. Run the 0.4.0 installer when you want your installed shortcuts to launch the update.
+Close EPUB Reader or Marginalia if either is running, then open `release/win-unpacked/Marginalia.exe`. This build uses your existing library. Run the 0.4.1 installer when you want your installed shortcuts to launch the update.
 
 The first 0.4 launch reuses your library and creates a SQLite backup before upgrading an older database. Use 0.4 or newer afterward; older builds cannot read the upgraded database.
 
@@ -72,6 +72,10 @@ Use `npm run dev` for development. Your existing system Node was left unchanged;
 - Offline operation with disabled book scripts and blocked remote requests.
 
 New imports use the EPUB's embedded title and author immediately, regardless of the filename. Embedded artwork appears on the bookshelf, with the title kept below it. Surname-first author entries such as "Austen, Jane" display as "Jane Austen"; original metadata is retained. Older entries refresh as their bookshelf cards load. Missing, damaged, unsupported, or vector-only artwork uses the text-cover fallback. Complex fixed-layout books, DRM-protected EPUBs, PDFs, and audio/video are outside current support.
+
+## Import compatibility in 0.4.1
+
+Books containing the Unicode replacement character (�) in otherwise valid XML metadata can be imported. The reader preserves the source bytes and existing characters; it does not reconstruct missing text. Malformed XML, entity declarations, unsafe paths, oversized archives, and missing reading chapters are still rejected.
 
 ## What's new in 0.4
 

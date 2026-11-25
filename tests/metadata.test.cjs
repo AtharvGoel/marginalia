@@ -79,3 +79,15 @@ test('imports clean metadata immediately and backfills old entries without chang
   assert.deepEqual(await fs.readdir(path.join(data,'covers')),[]);
  }finally{if(svc)await svc.close();if(db)db.close();await fs.rm(root,{recursive:true,force:true});}
 });
+
+
+test('replacement characters in cover wrappers retain local artwork and imported source bytes',async()=>{
+ const zip=await JSZip.loadAsync(await book('wrapper'));const files=Object.keys(zip.files).filter(name=>/\.(xhtml|svg)$/.test(name));
+ for(const name of files){const text=await zip.file(name).async('string');zip.file(name,text.replace(/(<(?:img|image)\b)/,'<!-- \ufffd -->$1'));}
+ const bytes=await zip.generateAsync({type:'nodebuffer'}),info=await metadata(bytes);assert.equal(info.cover.mime,'image/png');
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'epub-unicode-'));let svc;
+ try{
+  const source=path.join(root,'book.epub'),data=path.join(root,'data');await fs.writeFile(source,bytes);svc=await openLibraryService(data);
+  const [entry]=await svc.importFiles([source]);assert.deepEqual(await fs.readFile(source),bytes);assert.deepEqual(Buffer.from(await svc.read(entry.id)),bytes);assert.match((await svc.inspectBook(entry.id)).cover,/^data:image\/png;base64,/);
+ }finally{if(svc)await svc.close();await fs.rm(root,{recursive:true,force:true});}
+});

@@ -1,5 +1,5 @@
 const path = require('node:path');
-const { DOMParser } = require('@xmldom/xmldom');
+const { parseMetadataXml } = require('./xml.cjs');
 const { validateEpub } = require('./storage.cjs');
 const MAX_COVER = 8 * 1024 * 1024;
 const rasterTypes = new Set(['image/png','image/jpeg','image/gif','image/webp']);
@@ -40,8 +40,7 @@ async function metadata(bytes, parsed) {
     // A cover page or SVG wrapper may reference an embedded raster cover.
     if (!['.svg','.xhtml','.html','.htm'].includes(extension) || entry._data.uncompressedSize>1024*1024) return null;
     const xml = await entry.async('string');
-    if(/<!ENTITY/i.test(xml)) return null;
-    const document = new DOMParser({onError:()=>{throw new Error('Invalid cover wrapper');}}).parseFromString(xml,'application/xml');
+    const document = parseMetadataXml(xml,'cover wrapper');
     for(const image of [...nodes(document,'img'),...nodes(document,'image')]) {
       const result = await resolveCover(name,image.getAttribute('src') || image.getAttribute('href') || image.getAttributeNS('http://www.w3.org/1999/xlink','href'),depth+1);
       if(result)return result;

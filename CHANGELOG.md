@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.1 — EPUB import compatibility
+
+- Accept Unicode replacement characters in otherwise valid EPUB package metadata and cover wrappers.
+- Keep all other XML warnings/errors fatal, along with entity, unsafe-path, missing-chapter, and archive-size checks.
+- Preserve the original book bytes and replacement characters; do not guess or rewrite damaged text.
+- Report genuine XML failures without nested parser callback errors.
+- Add import, cover, reading, restart, and rejection regression checks.
+
+
 ## 0.4.0 — Passage highlights and notes
 
 - Add a passage-selection menu with yellow, green, blue, and pink highlights.
