@@ -82,9 +82,18 @@ Acceptance: dropping a completed EPUB into a linked folder imports it once; rest
 
 
 - **Done (0.3):** Font-family choices, line spacing, margins, continuous scrolling, fullscreen, and adjustable reading width.
-- Reading progress and clearer chapter/page indicators.
 - Drag-and-drop import into the app.
 - Larger compatibility corpus: illustrations, footnotes, nested contents, varied languages, and publisher layouts.
+
+### Book progress and page numbers — Planned (user requested)
+
+- Display the **percentage of the whole book remaining**, for example **35% left**, and update it as the reader moves through the book.
+- Display the **current page**, preferably **Page 42 of 310**, with book-wide progress distinguished from the current chapter.
+- Keep the remaining percentage tied to the saved reading position so changing fonts, margins, window size, or page/scroll mode does not falsely change how much has been read.
+- Use publisher page numbers when an EPUB supplies a usable page list; otherwise clearly label app-calculated pages, which may change with the reading layout. Confirm the final page-number convention before implementation.
+- Restore the indicators after reopening a book, and handle the beginning/end and progress calculation gracefully.
+
+Acceptance: the reading view shows the percentage left and current page, updates them during navigation, and restores them with the saved passage. Layout changes preserve book progress and recalculate any layout-based page numbers consistently.
 
 ### Free ebook library browsing — Planned (user requested)
 
